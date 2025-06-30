@@ -250,6 +250,88 @@
   background-color: #555;
 }
 
+/* CARROUSEL */
+/* CARROSSEL CONTAINER */
+.carrossel-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 20px;
+}
+
+/* CONTEÚDO DO CARROSSEL */
+.carrossel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* IMAGEM INDIVIDUAL */
+.imagem-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* IMAGEM EM SI */
+.carrossel-img {
+  width: 300px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* BOTÃO DE EDITAR (✎) */
+.botao-editar {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f46d25;
+  color: white;
+  font-size: 22px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.botao-editar:hover {
+  background-color: #d95515;
+}
+
+/* MODO SEM IMAGENS */
+.carrossel-vazio {
+  text-align: center;
+  padding: 50px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* BOTÃO CENTRALIZADO DE ADICIONAR */
+.botao-central {
+  background-color: #f46d25;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  padding: 0.625rem 1.2rem;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.botao-central:hover {
+  background-color: #d95515;
+}
+
 @media (min-width: 769px) {
   .bottom-nav {
     display: none !important;

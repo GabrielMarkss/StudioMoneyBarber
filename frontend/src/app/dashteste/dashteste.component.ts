@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../service/usuario.service';
 import { NotificacaoService } from '../service/notificacao.service';
+import { CarrosselImagem } from '../service/carrosselImagem.service';
 import { Notificacao } from '../models/Notificacao.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -29,9 +30,17 @@ export class DashtesteComponent implements OnInit {
   };
   imagemSelecionada: File | null = null;
 
+  // -----------------------------
+  // Carrossel de Imagens
+  imagens: any[] = [];
+  novaImagem: any = { id: null, url: '' };
+  mostrarFormularioImagem = false;
+  // -----------------------------
+
   constructor(
     public usuarioService: UsuarioService,
-    private notificacaoService: NotificacaoService
+    private notificacaoService: NotificacaoService,
+    private carrosselImagem: CarrosselImagem
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +80,7 @@ export class DashtesteComponent implements OnInit {
     }
 
     this.listarNotificacoes();
+    this.listarImagens();
   }
 
   abrirMenu() {
@@ -150,7 +160,7 @@ export class DashtesteComponent implements OnInit {
     const confirmar = confirm('Você deseja remover esta notificação?');
     if (!confirmar) return;
 
-    const isAdmin = this.usuarioService.usuarioEhAdmin(); // crie esse método se necessário
+    const isAdmin = this.usuarioService.usuarioEhAdmin();
 
     this.notificacaoService.deletar(notificacao.id!, true, isAdmin).subscribe({
       next: () => this.listarNotificacoes(),
@@ -162,4 +172,53 @@ export class DashtesteComponent implements OnInit {
     this.nova = { ...n };
     this.mostrarFormulario = true;
   }
+
+  // -----------------------------
+  // Métodos do Carrossel de Imagens
+  abrirFormularioImagem() {
+    this.novaImagem = { id: null, url: '' };
+    this.mostrarFormularioImagem = true;
+  }
+
+  cancelarFormularioImagem() {
+    this.mostrarFormularioImagem = false;
+    this.novaImagem = { id: null, url: '' };
+  }
+
+  onFileChangeImagem(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.novaImagem.url = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  salvarImagem() {
+    if (this.novaImagem.id) {
+      this.carrosselImagem.atualizarImagem(this.novaImagem).subscribe(() => {
+        this.listarImagens();
+        this.cancelarFormularioImagem();
+      });
+    } else {
+      this.carrosselImagem.criarImagem(this.novaImagem).subscribe(() => {
+        this.listarImagens();
+        this.cancelarFormularioImagem();
+      });
+    }
+  }
+
+  editarImagem(imagem: any) {
+    this.novaImagem = { ...imagem };
+    this.mostrarFormularioImagem = true;
+  }
+
+  listarImagens() {
+    this.carrosselImagem.listarImagens().subscribe((res) => {
+      this.imagens = res;
+    });
+  }
+  // -----------------------------
 }

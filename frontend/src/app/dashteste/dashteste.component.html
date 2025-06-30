@@ -171,6 +171,69 @@
   </div>
 </nav>
 
+<div class="carrossel-container" *ngIf="imagens.length > 0; else vazio">
+  <div class="carrossel">
+    <div class="imagem-wrapper" *ngFor="let imagem of imagens">
+      <img [src]="imagem.url" alt="Imagem" class="carrossel-img" />
+      <button class="botao-editar" (click)="editarImagem(imagem)">✎</button>
+    </div>
+
+    <!-- Botão para adicionar nova imagem -->
+    <button
+      *ngIf="usuarioService.usuarioEhAdmin()"
+      class="botao-adicionar"
+      (click)="abrirFormularioImagem()"
+      title="Adicionar imagem"
+    >
+      +
+    </button>
+  </div>
+</div>
+
+<ng-template #vazio>
+  <div class="carrossel-vazio">
+    <p style="color: gray; text-align: center">
+      Nenhuma imagem adicionada ainda.
+    </p>
+    <div style="display: flex; justify-content: center; margin-top: 10px">
+      <button
+        *ngIf="usuarioService.usuarioEhAdmin()"
+        class="botao-central"
+        (click)="abrirFormularioImagem()"
+      >
+        ＋ Adicionar imagem
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Modal de formulário -->
+<div
+  class="formulario-modal"
+  *ngIf="mostrarFormularioImagem"
+  style="z-index: 1000"
+>
+  <h3 style="color: black; margin-top: 0">Imagem do Carrossel</h3>
+
+  <input
+    type="file"
+    (change)="onFileChangeImagem($event)"
+    style="margin-bottom: 10px"
+  />
+  <div class="botoes-container">
+    <button class="cancelar" (click)="cancelarFormularioImagem()">
+      Cancelar
+    </button>
+    <button
+      class="salvar"
+      (click)="salvarImagem()"
+      [disabled]="!novaImagem.url"
+    >
+      Salvar
+    </button>
+  </div>
+</div>
+
 <!-- BARRA INFERIOR MOBILE -->
 <nav class="bottom-nav">
   <a routerLink="/dashteste" class="nav-item">

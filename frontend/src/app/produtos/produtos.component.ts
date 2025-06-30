@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-produtos',
+  selector: 'app-dashteste',
   templateUrl: './produtos.component.html',
   styleUrls: ['./produtos.component.css'],
   standalone: true,
