@@ -26,4 +26,8 @@ public class NotificacaoService {
         repo.deleteById(id);
     }
 
+    public boolean existePorId(Long id) {
+        return repo.existsById(id);
+    }
+
 }

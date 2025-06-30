@@ -22,6 +22,12 @@ export class NotificacaoService {
     return this.http.get<Notificacao[]>(this.apiUrl);
   }
 
+  atualizar(id: number, notificacao: Notificacao) {
+    return this.http.put<Notificacao>(`${this.apiUrl}/${id}`, notificacao, {
+      headers: { 'X-USER-ROLE': 'ADMIN' },
+    });
+  }
+
   deletar(id: number, confirmar = false, isAdmin = false) {
     const options: any = {
       params: {},

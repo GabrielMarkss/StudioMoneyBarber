@@ -26,6 +26,22 @@ public class NotificacaoController {
         return ResponseEntity.ok(service.listarTodas());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Notificacao> editar(@PathVariable Long id,
+            @RequestBody Notificacao notificacao,
+            @RequestHeader("X-USER-ROLE") String role) {
+        if (!role.equalsIgnoreCase("ADMIN")) {
+            return ResponseEntity.status(403).body(null);
+        }
+
+        if (!service.existePorId(id)) { // usar método do service para verificar existência
+            return ResponseEntity.notFound().build();
+        }
+
+        notificacao.setId(id);
+        return ResponseEntity.ok(service.criar(notificacao)); // 'criar' pode salvar update tb
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id,
             @RequestParam(defaultValue = "false") boolean confirmar,

@@ -7,13 +7,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-dashteste',
-  templateUrl: './dashteste.component.html',
-  styleUrls: ['./dashteste.component.css'],
+  selector: 'app-agendamentos',
+  templateUrl: './agendamento.component.html',
+  styleUrls: ['./agendamento.component.css'],
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
 })
-export class DashtesteComponent implements OnInit {
+export class AgendamentoComponent implements OnInit {
   menuAberto = false;
   mostrarNotificacoes = false;
   mostrarFormulario = false;
