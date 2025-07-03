@@ -11,7 +11,6 @@ import com.stmoneybarber.backend.repository.ImagemRepository;
 
 @RestController
 @RequestMapping("/api/imagens")
-@CrossOrigin("*")
 public class ImagemController {
 
     @Autowired
