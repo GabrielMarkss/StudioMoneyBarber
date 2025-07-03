@@ -72,16 +72,15 @@
             "
           >
             <span
-              class="editar-notificacao"
+              class="icone-acao editar notificacao"
               title="Editar notificação"
-              style="cursor: pointer; font-size: 18px"
               (click)="editarNotificacao(n)"
               >✎</span
             >
+
             <span
-              class="apagar-notificacao"
+              class="icone-acao apagar notificacao"
               title="Remover notificação"
-              style="cursor: pointer; font-size: 18px"
               (click)="confirmarRemocao(n)"
               >✕</span
             >
@@ -234,31 +233,224 @@
   </div>
 </div>
 
-<!-- BARRA INFERIOR MOBILE -->
-<nav class="bottom-nav">
-  <a routerLink="/dashteste" class="nav-item">
-    <img src="assets/home-ativa.png" alt="Início" width="38px" height="32px" />
-    <span style="color: #f46d25; font-weight: bold">Início</span>
-  </a>
-  <a routerLink="/galeria" class="nav-item">
-    <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
-    <span>Galeria</span>
-  </a>
-  <a routerLink="/agendamentos" class="nav-item">
-    <img
-      src="assets/agendamento.png"
-      alt="Agendamentos"
-      width="34px"
-      height="34px"
-    />
-    <span>Agendamentos</span>
-  </a>
-  <a routerLink="/produtos" class="nav-item">
-    <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
-    <span>Produtos</span>
-  </a>
-  <a routerLink="/menu" class="nav-item">
-    <img src="assets/user-profile.png" alt="Menu" width="40px" height="40px" />
-    <span>Menu</span>
-  </a>
-</nav>
+<section class="barbeiros-section">
+  <h2 class="titulo">Barbeiros</h2>
+
+  <div class="barbeiros-wrapper">
+    <!-- Felipe -->
+    <div class="barbeiro-card">
+      <img src="assets/felipe.png" alt="Felipe" class="barbeiro-img" />
+      <div class="barbeiro-info">
+        <h3>Felipe</h3>
+        <p>
+          <strong>Contato:</strong>
+          <a class="contato" href="https://wa.me/5562999361327"
+            >(62) 99936-1327</a
+          >
+        </p>
+        <p>
+          Você pode agendar com Felipe pelo WhatsApp ou
+          <a class="agendar-link" href="#">Agende Online por aqui</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Ezequiel -->
+    <div class="barbeiro-card">
+      <img src="assets/ezequiel.png" alt="Ezequiel" class="barbeiro-img" />
+      <div class="barbeiro-info">
+        <h3>Ezequiel</h3>
+        <p>
+          <strong>Contato:</strong>
+          <a class="contato" href="https://wa.me/5562991145896"
+            >(62) 99114-5896</a
+          >
+        </p>
+        <p>
+          Você pode agendar com Ezequiel pelo WhatsApp ou
+          <a class="agendar-link" href="#">Agende Online por aqui</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<br /><br /><br />
+
+<div class="layout-servicos">
+  <!-- Imagem -->
+  <div class="imagem-servicos">
+    <img src="assets/cortecanvas.png" alt="Imagem" />
+  </div>
+
+  <div class="tabela-wrapper">
+    <div class="cabecalho-tabela">
+      <h2>Tabela de Preços</h2>
+      <button
+        *ngIf="usuarioService.usuarioEhAdmin()"
+        (click)="abrirFormulario()"
+        class="botao-criar"
+      >
+        Criar serviço
+      </button>
+    </div>
+
+    <div class="estrelas">★★★★★</div>
+    <small class="subtitulo">Serviços de qualidade e preços justos.</small>
+
+    <table class="tabela-servicos">
+      <tbody>
+        <tr *ngFor="let servico of servicosPaginados">
+          <td>{{ servico.nome }}</td>
+          <td class="coluna-acoes">
+            <ng-container *ngIf="usuarioService.usuarioEhAdmin()">
+              <button
+                class="icone-acao editar"
+                title="Editar servico"
+                (click)="abrirFormulario(servico)"
+              >
+                ✎
+              </button>
+
+              <button
+                class="icone-acao apagar"
+                title="Remover servico"
+                (click)="deletarServico(servico.id!)"
+              >
+                ✕
+              </button>
+            </ng-container>
+            <span class="preco">
+              R$ {{ servico.preco | number : "1.2-2" }}
+            </span>
+          </td>
+        </tr>
+        <!-- NOVO RODAPÉ DENTRO DA TABELA -->
+        <div class="rodape-tabela">
+          <button class="botao-agendar">AGENDAR HORÁRIO</button>
+          <div class="paginacao" *ngIf="totalPaginas > 1">
+            <span
+              class="pagina"
+              [class.ativa]="paginaAtual === pagina"
+              *ngFor="let pagina of paginas"
+              (click)="irParaPagina(pagina)"
+            >
+              {{ pagina }}
+            </span>
+          </div>
+        </div>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Formulário de serviço em modal centralizado -->
+  <div
+    class="formulario-modal"
+    *ngIf="mostrarFormularioServico"
+    style="
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      z-index: 999;
+      width: 400px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    "
+  >
+    <h3 style="color: black; margin-top: 0">
+      {{ novoServico.id ? "Editar Serviço" : "Novo Serviço" }}
+    </h3>
+
+    <form (ngSubmit)="salvarServico()">
+      <label style="color: black; font-weight: bold">Nome</label>
+      <input
+        [(ngModel)]="novoServico.nome"
+        name="nome"
+        required
+        class="form-control"
+        style="width: 100%; margin-bottom: 10px"
+      />
+
+      <label style="color: black; font-weight: bold">Preço</label>
+      <input
+        type="number"
+        [(ngModel)]="novoServico.preco"
+        name="preco"
+        required
+        class="form-control"
+        style="width: 100%; margin-bottom: 15px"
+      />
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem">
+        <button
+          type="button"
+          (click)="cancelarFormularioServico()"
+          style="
+            background-color: #ccc;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          style="
+            background-color: #f46d25;
+            font-weight: bold;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+        >
+          Salvar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- BARRA INFERIOR MOBILE -->
+  <nav class="bottom-nav">
+    <a routerLink="/dashteste" class="nav-item">
+      <img
+        src="assets/home-ativa.png"
+        alt="Início"
+        width="38px"
+        height="32px"
+      />
+      <span style="color: #f46d25; font-weight: bold">Início</span>
+    </a>
+    <a routerLink="/galeria" class="nav-item">
+      <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
+      <span>Galeria</span>
+    </a>
+    <a routerLink="/agendamentos" class="nav-item">
+      <img
+        src="assets/agendamento.png"
+        alt="Agendamentos"
+        width="34px"
+        height="34px"
+      />
+      <span>Agendamentos</span>
+    </a>
+    <a routerLink="/produtos" class="nav-item">
+      <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
+      <span>Produtos</span>
+    </a>
+    <a routerLink="/menu" class="nav-item">
+      <img
+        src="assets/user-profile.png"
+        alt="Menu"
+        width="40px"
+        height="40px"
+      />
+      <span>Menu</span>
+    </a>
+  </nav>
+</div>

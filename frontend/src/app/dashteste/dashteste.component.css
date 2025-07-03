@@ -30,36 +30,43 @@
   font-family: sans-serif;
 }
 
-.editar-notificacao {
-  position: absolute;
-  top: 6px;
-  right: 32px; /* Posição mais à esquerda */
+.icone-acao {
   font-size: 16px;
   font-weight: bold;
   color: #888;
   cursor: pointer;
   transition: color 0.3s ease;
   user-select: none;
+  background: none;
+  border: none;
 }
 
-.apagar-notificacao {
+/* Notificação: ícones absolutos no topo */
+.icone-acao.notificacao {
   position: absolute;
   top: 6px;
-  right: 8px; /* Continua no canto */
-  font-size: 16px;
-  font-weight: bold;
-  color: #888;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  user-select: none;
 }
 
-.editar-notificacao:hover {
+.icone-acao.notificacao[title="Editar notificação"] {
+  right: 32px;
+}
+.icone-acao.notificacao[title="Remover notificação"] {
+  right: 8px;
+}
+
+/* Hover cores específicas */
+.icone-acao.editar:hover {
   color: blue;
 }
-
-.apagar-notificacao:hover {
+.icone-acao.apagar:hover {
   color: red;
+}
+
+/* Tabela: ícones inline */
+.icone-acao.tabela {
+  position: relative; /* mantém no fluxo */
+  font-size: 16px;
+  color: #888;
 }
 
 /* Cartão de notificação */
@@ -332,6 +339,261 @@
   background-color: #d95515;
 }
 
+/* BARBEIROS */
+.barbeiros-section {
+  padding: 20px 0;
+  width: 100%;
+}
+
+.titulo {
+  font-size: 28px;
+  font-weight: bold;
+  margin-left: 20px;
+  margin-bottom: 30px;
+}
+
+.barbeiros-wrapper {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.barbeiro-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 500px;
+  flex: 1 1 450px;
+  padding: 10px 20px;
+}
+
+.barbeiro-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.barbeiro-info h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.barbeiro-info p {
+  font-size: 16px;
+  margin: 4px 0;
+  line-height: 1.25;
+}
+
+.contato {
+  color: #17d43d;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.agendar-link {
+  font-weight: bold;
+  color: black;
+  text-decoration: none;
+}
+
+.agendar-link:hover {
+  text-decoration: 2px underline;
+}
+
+/* TABELA */
+/* ===== Layout geral fixo e colado ===== */
+.layout-servicos {
+  display: flex;
+  flex-direction: row; /* garante lado a lado */
+  flex-wrap: nowrap; /* NUNCA quebra linha */
+  align-items: flex-start;
+  width: 100%;
+  /* Sem gap, fica colado */
+}
+
+/* ===== Imagem ===== */
+.imagem-servicos {
+  flex: 0 0 30%; /* largura fixa 30% */
+  min-width: 250px; /* evita ficar pequeno demais */
+}
+
+.imagem-servicos img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* ===== Tabela ===== */
+.layout-servicos {
+  display: flex;
+  align-items: flex-start;
+  gap: 0; /* Sem espaço entre imagem e tabela */
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.imagem-servicos {
+  flex: none;
+}
+
+.imagem-servicos img {
+  display: block;
+  height: 750px;
+  object-fit: cover;
+  border-radius: 8px 0 0 8px;
+}
+
+.tabela-wrapper {
+  width: 100%;
+  height: 750px; /* mesma altura da imagem */
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 0 8px 8px 0;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.botao-criar {
+  background-color: #f3741c;
+  border: none;
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  align-self: center; /* Garante alinhamento vertical */
+}
+
+.cabecalho-tabela {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Alinha verticalmente com o h2 */
+  padding: 8px 0; /* Opcional: espaçamento vertical interno */
+}
+
+.cabecalho-tabela h2 {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1.2; /* Garante altura da linha adequada */
+}
+
+.estrelas {
+  color: #f46d25;
+  font-size: 25px;
+}
+
+.subtitulo {
+  color: #626262;
+  font-weight: bold;
+  margin: 0 5px 10px;
+}
+
+.tabela-servicos {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tabela-servicos tbody {
+  display: block;
+  height: 750px; /* grande */
+  overflow-y: auto;
+}
+
+.tabela-servicos tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.tabela-servicos td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+}
+
+.coluna-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.preco {
+  font-weight: bold;
+}
+
+.rodape-tabela {
+  display: flex;
+  justify-content: space-between; /* botão à esquerda, paginação à direita */
+  align-items: center;
+  margin-top: auto; /* empurra para baixo */
+  padding-top: 10px;
+}
+
+.botao-agendar {
+  background-color: #f46d25;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.paginacao {
+  display: flex;
+  gap: 8px;
+}
+
+.pagina {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f46d25;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.pagina.ativa {
+  background: #f3741c;
+}
+
+.formulario-servico {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.formulario-servico label {
+  display: block;
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+.formulario-servico input {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+}
+
+.botoes-formulario {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
 @media (min-width: 769px) {
   .bottom-nav {
     display: none !important;
@@ -451,5 +713,14 @@
   .bottom-nav .nav-item span {
     font-size: 11px;
     line-height: 1;
+  }
+
+  .barbeiros-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .barbeiro-card {
+    justify-content: flex-start;
   }
 }
