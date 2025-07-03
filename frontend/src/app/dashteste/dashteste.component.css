@@ -549,24 +549,26 @@
 
 .paginacao {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: center;
 }
 
 .pagina {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #f46d25;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+  padding: 6px 12px;
+  border: 2px solid #f46d25;
+  border-radius: 100%;
   cursor: pointer;
+  color: #f46d25;
+  background-color: white;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .pagina.ativa {
-  background: #f3741c;
+  background-color: #f46d25;
+  color: white;
 }
 
 .formulario-servico {
