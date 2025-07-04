@@ -3,11 +3,15 @@ import { UsuarioService } from '../service/usuario.service';
 import { NotificacaoService } from '../service/notificacao.service';
 import { CarrosselImagem } from '../service/carrosselImagem.service';
 import { ServicoService } from '../service/servico.service';
+import { CardService } from '../service/card.service';
+
 import { Notificacao } from '../models/Notificacao.model';
 import { Servico } from '../models/servico.model';
+
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Card } from '../models/card-servico.model';
 
 @Component({
   selector: 'app-dashteste',
@@ -48,11 +52,22 @@ export class DashtesteComponent implements OnInit {
   totalPaginas = 1;
   paginas: number[] = [];
 
+  // Cards
+  cards: Card[] = [];
+  novoCardDescricao = '';
+  novoCardImagem: File | null = null;
+  cardEditando: Card | null = null;
+  mostrarFormularioCard = false;
+  cardsVisiveis: Card[] = [];
+  proximoIndexCard = 0;
+  intervaloCarrossel: any;
+
   constructor(
     public usuarioService: UsuarioService,
     private notificacaoService: NotificacaoService,
     private carrosselImagem: CarrosselImagem,
-    private servicoService: ServicoService
+    private servicoService: ServicoService,
+    private cardService: CardService
   ) {}
 
   ngOnInit(): void {
@@ -94,6 +109,7 @@ export class DashtesteComponent implements OnInit {
     this.listarNotificacoes();
     this.listarImagens();
     this.listarServicos();
+    this.listarCards();
   }
 
   abrirMenu() {
@@ -107,7 +123,7 @@ export class DashtesteComponent implements OnInit {
     }, 200);
   }
 
-  // SERVIÇOS
+  // --------------------- SERVIÇOS ---------------------
   listarServicos() {
     this.servicoService.listar().subscribe((res) => {
       this.servicos = res;
@@ -168,7 +184,7 @@ export class DashtesteComponent implements OnInit {
     });
   }
 
-  // NOTIFICAÇÕES
+  // --------------------- NOTIFICAÇÕES ---------------------
   abrirNotificacao() {
     clearTimeout(this.notificacaoTimeout);
     this.mostrarNotificacoes = true;
@@ -243,7 +259,7 @@ export class DashtesteComponent implements OnInit {
     this.mostrarFormulario = true;
   }
 
-  // IMAGENS
+  // --------------------- IMAGENS ---------------------
   abrirFormularioImagem() {
     this.novaImagem = { id: null, url: '' };
     this.mostrarFormularioImagem = true;
@@ -288,5 +304,102 @@ export class DashtesteComponent implements OnInit {
     this.carrosselImagem.listarImagens().subscribe((res) => {
       this.imagens = res;
     });
+  }
+
+  // Cards
+  listarCards() {
+    this.cardService.listar().subscribe((res) => {
+      this.cards = res.map((c) => ({
+        ...c,
+        imagemPath: 'http://localhost:8080' + c.imagemPath,
+      }));
+
+      // Pega os primeiros 5
+      this.cardsVisiveis = this.cards.slice(0, 5);
+
+      // O próximo a entrar na fila será o 7º card (índice 5)
+      this.proximoIndexCard = 5 % this.cards.length;
+
+      // Inicia carrossel
+      this.iniciarCarrossel();
+    });
+  }
+
+  iniciarCarrossel() {
+    if (this.intervaloCarrossel) {
+      clearInterval(this.intervaloCarrossel);
+    }
+
+    this.intervaloCarrossel = setInterval(() => {
+      if (this.cards.length <= 5) {
+        // Se tiver 5 ou menos, não precisa rotacionar
+        return;
+      }
+
+      // Remove o primeiro
+      this.cardsVisiveis.shift();
+
+      // Adiciona o próximo na fila
+      this.cardsVisiveis.push(this.cards[this.proximoIndexCard]);
+
+      // Avança índice e faz loop se passar do final
+      this.proximoIndexCard = (this.proximoIndexCard + 1) % this.cards.length;
+    }, 8000);
+  }
+
+  ngOnDestroy() {
+    if (this.intervaloCarrossel) {
+      clearInterval(this.intervaloCarrossel);
+    }
+  }
+
+  abrirFormularioCard(card?: Card) {
+    if (card) {
+      this.cardEditando = { ...card };
+    } else {
+      this.cardEditando = null;
+      this.novoCardDescricao = '';
+      this.novoCardImagem = null;
+    }
+    this.mostrarFormularioCard = true;
+  }
+
+  cancelarFormularioCard() {
+    this.mostrarFormularioCard = false;
+    this.novoCardDescricao = '';
+    this.novoCardImagem = null;
+    this.cardEditando = null;
+  }
+
+  onFileChangeCard(event: any) {
+    this.novoCardImagem = event.target.files[0];
+  }
+
+  salvarCard() {
+    if (this.cardEditando) {
+      this.cardService
+        .atualizar(
+          this.cardEditando.id!,
+          this.novoCardDescricao,
+          this.novoCardImagem!
+        )
+        .subscribe(() => {
+          this.listarCards();
+          this.cancelarFormularioCard();
+        });
+    } else {
+      this.cardService
+        .criar(this.novoCardDescricao, this.novoCardImagem!)
+        .subscribe(() => {
+          this.listarCards();
+          this.cancelarFormularioCard();
+        });
+    }
+  }
+
+  deletarCard(id: number) {
+    if (confirm('Deseja remover este card?')) {
+      this.cardService.deletar(id).subscribe(() => this.listarCards());
+    }
   }
 }
