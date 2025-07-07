@@ -6,16 +6,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px;
-  "
->
+  ">
   <div class="left" style="display: flex; align-items: center">
     <img
       src="assets/user-profile.png"
       alt="Perfil"
       routerLink="/dashteste"
       class="profile-img"
-      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer"
-    />
+      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer" />
     <div class="greeting" style="color: white">
       <div style="font-size: 20px; font-weight: bold">
         Olá, {{ usuarioService.nomeUsuario || "..." }}
@@ -32,21 +30,18 @@
       gap: 0.5rem;
       padding-bottom: 0.25px;
       margin-top: 20px;
-    "
-  >
+    ">
     <!-- Ícone Notificação com pop-up -->
     <div
       class="notificacao-wrapper"
       (mouseenter)="abrirNotificacao()"
       (mouseleave)="fecharNotificacao()"
-      style="margin-right: 0.625rem"
-    >
+      style="margin-right: 0.625rem">
       <img
         src="assets/notificacao.png"
         alt="Notificações"
         class="notificacao"
-        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)"
-      />
+        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)" />
 
       <!-- Pop-up dinâmico -->
       <div class="notificacao-popup" *ngIf="mostrarNotificacoes">
@@ -55,8 +50,7 @@
             <img
               [src]="n.imagemUrl"
               alt="Imagem"
-              style="width: 100%; height: 100%"
-            />
+              style="width: 100%; height: 100%" />
           </div>
           <div class="notificacao-conteudo">
             <strong>{{ n.titulo }}</strong>
@@ -69,29 +63,23 @@
               align-items: center;
               gap: 0.3rem;
               margin-left: auto;
-            "
-          >
+            ">
             <span
               class="icone-acao editar notificacao"
               title="Editar notificação"
-              (click)="editarNotificacao(n)"
-              >✎</span
-            >
+              (click)="editarNotificacao(n)">✎</span>
 
             <span
               class="icone-acao apagar notificacao"
               title="Remover notificação"
-              (click)="confirmarRemocao(n)"
-              >✕</span
-            >
+              (click)="confirmarRemocao(n)">✕</span>
           </div>
         </div>
 
         <div
           class="nova-notificacao"
           *ngIf="usuarioService.usuarioEhAdmin()"
-          (click)="abrirFormularioNotificacao()"
-        >
+          (click)="abrirFormularioNotificacao()">
           + Nova notificação
         </div>
       </div>
@@ -99,20 +87,7 @@
       <!-- Formulário de criação (modal) -->
       <div
         class="formulario-modal"
-        *ngIf="mostrarFormulario"
-        style="
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 20px;
-          border-radius: 12px;
-          z-index: 999;
-          width: 400px;
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        "
-      >
+        *ngIf="mostrarFormulario">
         <h3 style="color: black; margin-top: 0">Nova Notificação</h3>
 
         <input
@@ -120,21 +95,18 @@
           [(ngModel)]="nova.titulo"
           class="form-control"
           placeholder="Título da notificação"
-          style="width: 100%"
-        />
+          style="width: 100%" />
         <textarea
           [(ngModel)]="nova.descricao"
           class="form-control"
           placeholder="Descrição da notificação"
           style="width: 100%; resize: none"
-          rows="3"
-        ></textarea>
+          rows="3"></textarea>
 
         <input
           style="color: black"
           type="file"
-          (change)="onFileChange($event)"
-        />
+          (change)="onFileChange($event)" />
 
         <div class="botoes-container">
           <button class="cancelar" (click)="cancelarFormulario()">
@@ -145,8 +117,7 @@
             (click)="salvarNotificacao()"
             [disabled]="
               !nova.titulo.trim() || !nova.descricao.trim() || !nova.imagemUrl
-            "
-          >
+            ">
             Salvar
           </button>
         </div>
@@ -157,8 +128,7 @@
     <div
       class="dropdown"
       (mouseenter)="abrirMenu()"
-      (mouseleave)="fecharMenu()"
-    >
+      (mouseleave)="fecharMenu()">
       <div class="dropdown-toggle">☰</div>
       <ul class="dropdown-menu" *ngIf="menuAberto">
         <li><a routerLink="/menu">Perfil</a></li>
@@ -172,34 +142,47 @@
 
 <div class="carrossel-container" *ngIf="imagens.length > 0; else vazio">
   <div class="carrossel">
-    <div class="imagem-wrapper" *ngFor="let imagem of imagens">
-      <img [src]="imagem.url" alt="Imagem" class="carrossel-img" />
-      <button class="botao-editar" (click)="editarImagem(imagem)">✎</button>
-    </div>
+    <div class="imagem-wrapper" *ngIf="imagemAtual">
 
-    <!-- Botão para adicionar nova imagem -->
-    <button
-      *ngIf="usuarioService.usuarioEhAdmin()"
-      class="botao-adicionar"
-      (click)="abrirFormularioImagem()"
-      title="Adicionar imagem"
-    >
-      +
-    </button>
+      <!-- BOTÃO PREV -->
+      <button
+        class="botao-navegacao esquerdo"
+        *ngIf="imagens.length > 1"
+        (click)="anteriorImagem()">‹</button>
+
+      <!-- IMAGEM -->
+      <img [src]="imagemAtual.url" alt="Imagem" class="carrossel-img" />
+
+      <!-- BOTÕES DE AÇÃO (admin) -->
+      <div class="botoes-hover" *ngIf="usuarioService.usuarioEhAdmin()">
+        <button class="botao-adicionar"
+          (click)="abrirFormularioImagem()">＋</button>
+        <button class="botao-editar"
+          (click)="editarImagem(imagemAtual)">✎</button>
+        <button class="botao-remover"
+          (click)="removerImagem(imagemAtual)">🗑</button>
+      </div>
+
+      <!-- BOTÃO NEXT -->
+      <button
+        class="botao-navegacao direito"
+        *ngIf="imagens.length > 1"
+        (click)="proximaImagem()">›</button>
+    </div>
   </div>
 </div>
 
 <ng-template #vazio>
   <div class="carrossel-vazio">
-    <p style="color: gray; text-align: center">
+    <p style="color: gray; text-align: center"
+      *ngIf="usuarioService.usuarioEhAdmin()">
       Nenhuma imagem adicionada ainda.
     </p>
     <div style="display: flex; justify-content: center; margin-top: 10px">
       <button
         *ngIf="usuarioService.usuarioEhAdmin()"
         class="botao-central"
-        (click)="abrirFormularioImagem()"
-      >
+        (click)="abrirFormularioImagem()">
         ＋ Adicionar imagem
       </button>
     </div>
@@ -207,27 +190,22 @@
 </ng-template>
 
 <!-- Modal de formulário -->
-<div
-  class="formulario-modal"
-  *ngIf="mostrarFormularioImagem"
-  style="z-index: 1000"
->
+<!-- Formulário de imagens -->
+<div class="formulario-modal" *ngIf="mostrarFormularioImagem"
+  style="z-index: 1000">
   <h3 style="color: black; margin-top: 0">Imagem do Carrossel</h3>
 
   <input
     type="file"
+    accept="image/*"
     (change)="onFileChangeImagem($event)"
-    style="margin-bottom: 10px"
-  />
+    style="margin-bottom: 10px" />
+
   <div class="botoes-container">
-    <button class="cancelar" (click)="cancelarFormularioImagem()">
-      Cancelar
-    </button>
-    <button
-      class="salvar"
-      (click)="salvarImagem()"
-      [disabled]="!novaImagem.url"
-    >
+    <button class="cancelar"
+      (click)="cancelarFormularioImagem()">Cancelar</button>
+    <button class="salvar" (click)="salvarImagem()"
+      [disabled]="!novaImagem.url">
       Salvar
     </button>
   </div>
@@ -242,11 +220,11 @@
       <img src="assets/felipe.png" alt="Felipe" class="barbeiro-img" />
       <div class="barbeiro-info">
         <h3>Felipe</h3>
+        <small>&#64;felipe_franca_12</small>
         <p>
-          <strong>Contato:</strong>
-          <a class="contato" href="https://wa.me/5562999361327"
-            >(62) 99936-1327</a
-          >
+          <strong>Contato: </strong>
+          <a class="contato" href="https://wa.me/5562999361327">(62)
+            99936-1327</a>
         </p>
         <p>
           Você pode agendar com Felipe pelo WhatsApp ou
@@ -260,11 +238,11 @@
       <img src="assets/ezequiel.png" alt="Ezequiel" class="barbeiro-img" />
       <div class="barbeiro-info">
         <h3>Ezequiel</h3>
+        <small>&#64;ezequiel_sntsss</small>
         <p>
-          <strong>Contato:</strong>
-          <a class="contato" href="https://wa.me/5562991145896"
-            >(62) 99114-5896</a
-          >
+          <strong>Contato: </strong>
+          <a class="contato" href="https://wa.me/5562991145896">(62)
+            99114-5896</a>
         </p>
         <p>
           Você pode agendar com Ezequiel pelo WhatsApp ou
@@ -276,181 +254,242 @@
 </section>
 <br /><br /><br />
 
-<div class="layout-servicos">
-  <!-- Imagem -->
-  <div class="imagem-servicos">
-    <img src="assets/cortecanvas.png" alt="Imagem" />
-  </div>
-
-  <div class="tabela-wrapper">
-    <div class="cabecalho-tabela">
-      <h2>Tabela de Preços</h2>
-      <button
-        *ngIf="usuarioService.usuarioEhAdmin()"
-        (click)="abrirFormulario()"
-        class="botao-criar"
-      >
-        Criar serviço
-      </button>
+<div class="container-centralizado">
+  <div class="layout-servicos">
+    <!-- Imagem -->
+    <div class="imagem-servicos">
+      <img src="assets/cortecanvas.png" alt="Imagem" />
     </div>
 
-    <div class="estrelas">★★★★★</div>
-    <small class="subtitulo">Serviços de qualidade e preços justos.</small>
-
-    <table class="tabela-servicos">
-      <tbody>
-        <tr *ngFor="let servico of servicosPaginados">
-          <td>{{ servico.nome }}</td>
-          <td class="coluna-acoes">
-            <ng-container *ngIf="usuarioService.usuarioEhAdmin()">
-              <button
-                class="icone-acao editar"
-                title="Editar servico"
-                (click)="abrirFormulario(servico)"
-              >
-                ✎
-              </button>
-
-              <button
-                class="icone-acao apagar"
-                title="Remover servico"
-                (click)="deletarServico(servico.id!)"
-              >
-                ✕
-              </button>
-            </ng-container>
-            <span class="preco">
-              R$ {{ servico.preco | number : "1.2-2" }}
-            </span>
-          </td>
-        </tr>
-        <!-- NOVO RODAPÉ DENTRO DA TABELA -->
-        <div class="rodape-tabela">
-          <button class="botao-agendar">AGENDAR HORÁRIO</button>
-          <div class="paginacao" *ngIf="totalPaginas > 1">
-            <span
-              class="pagina"
-              [class.ativa]="paginaAtual === pagina"
-              *ngFor="let pagina of paginas"
-              (click)="irParaPagina(pagina)"
-            >
-              {{ pagina }}
-            </span>
-          </div>
-        </div>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Formulário de serviço em modal centralizado -->
-  <div
-    class="formulario-modal"
-    *ngIf="mostrarFormularioServico"
-    style="
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 999;
-      width: 400px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    "
-  >
-    <h3 style="color: black; margin-top: 0">
-      {{ novoServico.id ? "Editar Serviço" : "Novo Serviço" }}
-    </h3>
-
-    <form (ngSubmit)="salvarServico()">
-      <label style="color: black; font-weight: bold">Nome</label>
-      <input
-        [(ngModel)]="novoServico.nome"
-        name="nome"
-        required
-        class="form-control"
-        style="width: 100%; margin-bottom: 10px"
-      />
-
-      <label style="color: black; font-weight: bold">Preço</label>
-      <input
-        type="number"
-        [(ngModel)]="novoServico.preco"
-        name="preco"
-        required
-        class="form-control"
-        style="width: 100%; margin-bottom: 15px"
-      />
-
-      <div style="display: flex; justify-content: flex-end; gap: 0.5rem">
+    <div class="tabela-wrapper">
+      <div class="cabecalho-tabela">
+        <h2>Tabela de Preços</h2>
         <button
-          type="button"
-          (click)="cancelarFormularioServico()"
-          style="
-            background-color: #ccc;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-          "
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          style="
-            background-color: #f46d25;
-            font-weight: bold;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-          "
-        >
-          Salvar
+          *ngIf="usuarioService.usuarioEhAdmin()"
+          (click)="abrirFormulario()"
+          class="botao-criar">
+          Criar serviço
         </button>
       </div>
-    </form>
+
+      <div class="estrelas">★★★★★</div>
+      <small class="subtitulo">Serviços de qualidade e preços justos.</small>
+
+      <table class="tabela-servicos">
+        <tbody>
+          <tr *ngFor="let servico of servicosPaginados">
+            <td>{{ servico.nome }}</td>
+            <td class="coluna-acoes">
+              <ng-container *ngIf="usuarioService.usuarioEhAdmin()">
+                <button
+                  class="icone-acao editar"
+                  title="Editar servico"
+                  (click)="abrirFormulario(servico)">
+                  ✎
+                </button>
+
+                <button
+                  class="icone-acao apagar"
+                  title="Remover servico"
+                  (click)="deletarServico(servico.id!)">
+                  ✕
+                </button>
+              </ng-container>
+              <span class="preco">
+                R$ {{ servico.preco | number : "1.2-2" }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Rodapé da Tabela -->
+          <div class="rodape-tabela">
+            <button class="botao-agendar">AGENDAR HORÁRIO</button>
+            <div class="paginacao" *ngIf="totalPaginas > 1">
+              <span
+                class="pagina"
+                [class.ativa]="paginaAtual === pagina"
+                *ngFor="let pagina of paginas"
+                (click)="irParaPagina(pagina)">
+                {{ pagina }}
+              </span>
+            </div>
+          </div>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Formulário Modal -->
+    <div class="formulario-modal" *ngIf="mostrarFormularioServico">
+      <h3 style="color: black; margin-top: 0">
+        {{ novoServico.id ? "Editar Serviço" : "Novo Serviço" }}
+      </h3>
+
+      <form (ngSubmit)="salvarServico()">
+        <label style="color: black; font-weight: bold">Nome</label>
+        <input
+          [(ngModel)]="novoServico.nome"
+          name="nome"
+          required
+          class="form-control"
+          style="width: 100%; margin-bottom: 10px" />
+
+        <label style="color: black; font-weight: bold">Preço</label>
+        <input
+          type="number"
+          [(ngModel)]="novoServico.preco"
+          name="preco"
+          required
+          class="form-control"
+          style="width: 100%; margin-bottom: 15px" />
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem">
+          <button
+            type="button"
+            (click)="cancelarFormularioServico()"
+            style="
+              background-color: #ccc;
+              border: none;
+              padding: 8px 14px;
+              border-radius: 6px;
+              cursor: pointer;
+            ">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            style="
+              background-color: #f46d25;
+              font-weight: bold;
+              color: white;
+              border: none;
+              padding: 8px 14px;
+              border-radius: 6px;
+              cursor: pointer;
+            ">
+            Salvar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <!-- BARRA INFERIOR MOBILE -->
-  <nav class="bottom-nav">
-    <a routerLink="/dashteste" class="nav-item">
-      <img
-        src="assets/home-ativa.png"
-        alt="Início"
-        width="38px"
-        height="32px"
-      />
-      <span style="color: #f46d25; font-weight: bold">Início</span>
-    </a>
-    <a routerLink="/galeria" class="nav-item">
-      <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
-      <span>Galeria</span>
-    </a>
-    <a routerLink="/agendamentos" class="nav-item">
-      <img
-        src="assets/agendamento.png"
-        alt="Agendamentos"
-        width="34px"
-        height="34px"
-      />
-      <span>Agendamentos</span>
-    </a>
-    <a routerLink="/produtos" class="nav-item">
-      <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
-      <span>Produtos</span>
-    </a>
-    <a routerLink="/menu" class="nav-item">
-      <img
-        src="assets/user-profile.png"
-        alt="Menu"
-        width="40px"
-        height="40px"
-      />
-      <span>Menu</span>
-    </a>
-  </nav>
+  <!-- LISTAGEM DE CARDS -->
+  <div class="cards-wrapper">
+    <div class="card" *ngFor="let c of cardsVisiveis">
+      <img [src]="c.imagemPath" alt="Imagem" style="width: 55px" />
+      <p class="card-descricao">{{ c.descricao }}</p>
+      <div class="card-acoes" *ngIf="usuarioService.usuarioEhAdmin()">
+        <button (click)="abrirFormularioCard(c)">✎</button>
+        <button (click)="deletarCard(c.id!)">🗑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÃO CENTRALIZADO ABAIXO DOS CARDS -->
+  <div class="adicionar-card-container" *ngIf="usuarioService.usuarioEhAdmin()">
+    <button class="botao-adicionar-card" (click)="abrirFormularioCard()">
+      + Adicionar Card
+    </button>
+  </div>
+
+  <!-- FORMULÁRIO DE CARD -->
+  <div class="formulario-modal" *ngIf="mostrarFormularioCard">
+    <h3>{{ cardEditando ? "Editar Card" : "Novo Card" }}</h3>
+
+    <label for="descricao">Descrição:</label>
+    <textarea
+      [(ngModel)]="novoCardDescricao"
+      placeholder="Digite a descrição do card..."
+      rows="4"
+      class="textarea-descricao"></textarea>
+
+    <label for="imagem">Imagem:</label>
+    <input type="file" (change)="onFileChangeCard($event)" class="input-file" />
+
+    <div class="botoes-formulario-card">
+      <button class="btn-cancelar" (click)="cancelarFormularioCard()">
+        Cancelar
+      </button>
+      <button
+        class="btn-salvar"
+        (click)="salvarCard()"
+        [disabled]="!novoCardDescricao || (!novoCardImagem && !cardEditando)">
+        Salvar
+      </button>
+    </div>
+  </div>
+
+  <!-- PLANO DE FIDELIDADE -->
+  <div class="fidelidade-box">
+    <img src="assets/fidelidade.png" alt="Plano" class="fidelidade-img" />
+
+    <div class="fidelidade-conteudo">
+      <h3>Plano de Fidelidade Mensal</h3>
+      <p>
+        Assine nosso plano de fidelidade todo mês e aproveite benefícios
+        exclusivos!
+      </p>
+
+      <div class="fidelidade-planos">
+        <span class="planos">Plano Padrão</span>
+        <span style="margin: 0 8px">|</span>
+        <span class="planos">Plano Padrão</span>
+      </div>
+
+      <button routerLink="/fidelidade" class="fidelidade-botao">
+        ASSINAR PLANO
+      </button>
+    </div>
+  </div>
+</div><br><br>
+
+<div class="mapa-container">
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3822.257878882561!2d-49.229727924858416!3d-16.663974044968104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935ef3059d42ca45%3A0x287fe03c189b0775!2sStudio%20Money%20Barber!5e0!3m2!1spt-BR!2sbr!4v1751644981020!5m2!1spt-BR!2sbr"
+    allowfullscreen
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
+  </iframe>
 </div>
+<div style="background-color: #000;">
+  <br><br><br>
+  <br><br><br>
+  <br><br><br>
+
+</div>
+
+<!-- BARRA INFERIOR MOBILE -->
+<nav class="bottom-nav">
+  <a routerLink="/dashteste" class="nav-item">
+    <img
+      src="assets/home-ativa.png"
+      alt="Início"
+      width="38px"
+      height="32px" />
+    <span style="color: #f46d25; font-weight: bold">Início</span>
+  </a>
+  <a routerLink="/galeria" class="nav-item">
+    <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
+    <span>Galeria</span>
+  </a>
+  <a routerLink="/agendamentos" class="nav-item">
+    <img
+      src="assets/agendamento.png"
+      alt="Agendamentos"
+      width="34px"
+      height="34px" />
+    <span>Agendamentos</span>
+  </a>
+  <a routerLink="/produtos" class="nav-item">
+    <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
+    <span>Produtos</span>
+  </a>
+  <a routerLink="/menu" class="nav-item">
+    <img
+      src="assets/user-profile.png"
+      alt="Menu"
+      width="40px"
+      height="40px" />
+    <span>Menu</span>
+  </a>
+</nav>

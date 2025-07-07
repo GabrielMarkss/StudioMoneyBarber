@@ -11,7 +11,7 @@ import com.stmoneybarber.backend.service.JwtService;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+// @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class UsuarioController {
 
     @Autowired

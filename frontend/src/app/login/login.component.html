@@ -6,8 +6,7 @@
       type="text"
       [(ngModel)]="identificador"
       placeholder="Email ou Telefone"
-      (input)="onInputIdentificador()"
-    />
+      (input)="onInputIdentificador()" />
 
     <input [(ngModel)]="senha" placeholder="Senha" type="password" />
 
@@ -15,8 +14,7 @@
       <input
         type="checkbox"
         id="permanecerConectado"
-        [(ngModel)]="permanecerConectado"
-      />
+        [(ngModel)]="permanecerConectado" />
       <label for="permanecerConectado">Permanecer conectado</label>
     </div>
 
@@ -24,7 +22,7 @@
 
     <!-- Link para cadastro -->
     <div class="register-link" style="margin-top: 1rem; text-align: center">
-      <a routerLink="/registrar">Cadastrar-se</a>
+      <a routerLink="/register">Cadastrar-se</a>
     </div>
   </div>
 </div>

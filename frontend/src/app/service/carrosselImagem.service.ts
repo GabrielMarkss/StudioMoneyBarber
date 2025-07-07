@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CarrosselImagem {
-  private readonly apiUrl = 'http://localhost:8080/api/imagens';
+  private readonly apiUrl = 'http://192.168.100.183:8080/api/imagens';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   listarImagens(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);

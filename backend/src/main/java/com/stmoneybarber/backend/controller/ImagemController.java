@@ -38,7 +38,11 @@ public class ImagemController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (!imagemRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         imagemRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }
