@@ -33,7 +33,6 @@
 
 .icone-acao {
   font-size: 16px;
-  font-weight: bold;
   cursor: pointer;
   transition: color 0.3s ease;
   user-select: none;
@@ -606,7 +605,7 @@
 }
 
 .fidelidade-img {
-  width: 360px;
+  width: 330px;
   height: auto;
 }
 
@@ -658,13 +657,16 @@
 /* ====== CARDS ====== */
 .cards-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 20px;
   margin-top: 40px;
   justify-content: center;
+  overflow-x: hidden;
 }
 
 .card {
+  position: relative;
+  /* importante para o posicionamento absoluto dos botões */
   background-color: #fff;
   border-radius: 8px;
   padding: 16px;
@@ -679,12 +681,28 @@
   margin: 10px 0;
 }
 
+.card-acoes {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
 .card-acoes button {
   background-color: transparent;
   border: none;
   font-size: 18px;
   cursor: pointer;
-  margin: 0 4px;
+  margin-left: 6px;
+  padding: 0;
+  line-height: 1;
+}
+
+.editar-card:hover {
+  color: blue;
+}
+
+.apagar-card:hover {
+  color: red;
 }
 
 .botao-adicionar-card {
@@ -706,8 +724,6 @@
 }
 
 /* ====== FORMULÁRIO DE CARD ====== */
-
-
 .textarea-descricao {
   width: 100%;
   padding: 10px;
@@ -761,6 +777,104 @@
   height: 100%;
   border: none;
 }
+
+/* ====== RODAPE ====== */
+.rodape {
+  background-color: #000;
+  color: white;
+  padding: 40px 20px 20px;
+  font-family: Arial, sans-serif;
+}
+
+.rede-social {
+  width: 18px;
+  margin-bottom: -3.5px;
+}
+
+.rodape-conteudo {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.rodape-coluna {
+  flex: 1;
+  min-width: 200px;
+}
+
+.rodape-coluna h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.rodape-coluna p,
+.rodape-coluna a {
+  font-size: 16px;
+  margin: 4px 0;
+  color: #ccc;
+  text-decoration: none;
+}
+
+.rodape-coluna a:hover {
+  text-decoration: underline;
+}
+
+/* LOGO + TÍTULO + LINKS ABAIXO DO TÍTULO */
+.logo-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.rodape-logo {
+  margin-top: 15px;
+  height: 60px;
+  width: auto;
+}
+
+.logo-texto {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  /* força o título a não quebrar */
+}
+
+.logo-titulo {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+.rodape-links-internos {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+}
+
+
+.rodape-links-internos a {
+  font-size: 15px;
+  color: #ccc;
+  text-decoration: none;
+}
+
+.rodape-links-internos a:hover {
+  text-decoration: underline;
+}
+
+/* COPYRIGHT CENTRALIZADO E FORA DO BLOCO PRINCIPAL */
+.rodape-direitos {
+  text-align: center;
+  font-size: 14px;
+  color: #aaa;
+  margin-top: 30px;
+  padding-bottom: 10px;
+}
+
 
 /* ====== MEDIA QUERIES ====== */
 @media (min-width: 769px) {
@@ -984,21 +1098,38 @@
   }
 
   .tabela-servicos tr {
-    display: table;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 8px;
+    position: relative;
     width: 100%;
-    table-layout: fixed;
+    box-sizing: border-box;
+  }
+
+  .tabela-servicos tr::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 10px;
+    right: 10px;
+    height: 1px;
+    background-color: #ccc;
   }
 
   .tabela-servicos td {
-    padding: 12px 4px;
-    font-size: 16px;
     border: none;
-    vertical-align: middle;
+    font-size: 16px;
+    background-color: transparent;
+    flex: 1;
+    padding: 0;
+    box-sizing: border-box;
   }
 
   .tabela-servicos td:first-child {
     text-align: left;
-    width: 75%;
   }
 
   .coluna-acoes {
@@ -1008,6 +1139,14 @@
 
   .icone-acao {
     display: none !important;
+  }
+
+  .preco {
+    text-align: right;
+    font-weight: bold;
+    font-size: 15px;
+    width: 100%;
+    padding-right: 0;
   }
 
   .rodape-tabela {
@@ -1029,8 +1168,71 @@
   }
 
   .pagina {
-    font-size: 16px;
-    padding: 6px 10px;
+    font-size: 15px;
+    padding: 4px 8px;
+  }
+
+  /* CARDS MOBILE */
+  .cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+
+  .card {
+    width: 150px;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .card img {
+    width: 25px;
+    height: auto;
+  }
+
+  .card-descricao {
+    font-size: 14px;
+    margin: 6px 0;
+  }
+
+  .fidelidade-box {
+    padding: 15px;
+    height: auto;
+    gap: 5px;
+  }
+
+  .fidelidade-img {
+    width: 150px;
+  }
+
+  .fidelidade-conteudo {
+    max-width: 100%;
+  }
+
+  .fidelidade-conteudo h3 {
+    font-size: 20px;
+  }
+
+  .fidelidade-conteudo p {
+    font-size: 15px;
+  }
+
+  .fidelidade-planos {
+    font-size: 15px;
+  }
+
+  .fidelidade-botao {
+    font-size: 15px;
+    padding: 8px 36px;
+    align-self: center;
+  }
+
+  .mapa-container {
+    height: 220px;
   }
 
   .bottom-nav {
@@ -1067,12 +1269,4 @@
     line-height: 1;
   }
 
-  .barbeiros-wrapper {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .barbeiro-card {
-    justify-content: flex-start;
-  }
 }

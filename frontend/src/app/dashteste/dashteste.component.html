@@ -67,11 +67,13 @@
             <span
               class="icone-acao editar notificacao"
               title="Editar notificação"
+              style="font-size: 17px;"
               (click)="editarNotificacao(n)">✎</span>
 
             <span
               class="icone-acao apagar notificacao"
               title="Remover notificação"
+              style="font-weight: bold;"
               (click)="confirmarRemocao(n)">✕</span>
           </div>
         </div>
@@ -263,7 +265,7 @@
 
     <div class="tabela-wrapper">
       <div class="cabecalho-tabela">
-        <h2>Tabela de Preços</h2>
+        <h2>Tabela de Serviços</h2>
         <button
           *ngIf="usuarioService.usuarioEhAdmin()"
           (click)="abrirFormulario()"
@@ -284,6 +286,7 @@
                 <button
                   class="icone-acao editar"
                   title="Editar servico"
+                  style="font-size: 17px;"
                   (click)="abrirFormulario(servico)">
                   ✎
                 </button>
@@ -291,6 +294,7 @@
                 <button
                   class="icone-acao apagar"
                   title="Remover servico"
+                  style="font-weight: bold;"
                   (click)="deletarServico(servico.id!)">
                   ✕
                 </button>
@@ -379,8 +383,10 @@
       <img [src]="c.imagemPath" alt="Imagem" style="width: 55px" />
       <p class="card-descricao">{{ c.descricao }}</p>
       <div class="card-acoes" *ngIf="usuarioService.usuarioEhAdmin()">
-        <button (click)="abrirFormularioCard(c)">✎</button>
-        <button (click)="deletarCard(c.id!)">🗑</button>
+        <button class="editar-card"
+          (click)="abrirFormularioCard(c)">✎</button>
+        <button class="apagar-card" style="font-weight: bold;"
+          (click)="deletarCard(c.id!)">✕</button>
       </div>
     </div>
   </div>
@@ -441,8 +447,7 @@
       </button>
     </div>
   </div>
-</div><br><br>
-
+</div>
 <div class="mapa-container">
   <iframe
     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3822.257878882561!2d-49.229727924858416!3d-16.663974044968104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935ef3059d42ca45%3A0x287fe03c189b0775!2sStudio%20Money%20Barber!5e0!3m2!1spt-BR!2sbr!4v1751644981020!5m2!1spt-BR!2sbr"
@@ -451,11 +456,56 @@
     referrerpolicy="no-referrer-when-downgrade">
   </iframe>
 </div>
-<div style="background-color: #000;">
-  <br><br><br>
-  <br><br><br>
-  <br><br><br>
+<br>
 
+<div class="rodape">
+  <div class="rodape-conteudo">
+    <!-- CONTATO -->
+    <div class="rodape-coluna">
+      <h4>Contato</h4>
+      <p><img src="assets/whatsapp.png" alt="WhatsApp do Felipe"
+          class="rede-social" /> (62) 99936-1327</p>
+      <p><img src="assets/whatsapp.png" alt="WhatsApp do Ezequiel"
+          class="rede-social" /> (62) 99114-5896</p>
+      <p><img src="assets/gmail.png" alt="WhatsApp do Ezequiel"
+          class="rede-social" /> studiomoneybarber&#64;gmail.com</p>
+    </div>
+
+    <!-- REDES SOCIAIS -->
+    <div class="rodape-coluna">
+      <h4>Redes Sociais</h4>
+      <p><img src="assets/instagram.png" alt="Instagram"
+          class="rede-social"
+          width="20px" />
+        <a href="https://www.instagram.com/studio_money_barber/"
+          target="_blank"> Instagram</a></p>
+      <p><img src="assets/facebook.png" alt="Facebook"
+          class="rede-social"
+          width="20px" /><a href="https://facebook.com"
+          target="_blank"> Facebook</a></p>
+    </div>
+
+    <!-- LOGO + TÍTULO + LINKS -->
+    <div class="rodape-coluna logo-coluna">
+      <div class="logo-wrapper">
+        <img src="assets/logo.png" alt="Logo" class="rodape-logo" />
+        <div class="logo-texto">
+          <span class="logo-titulo">Studio Money Barber</span>
+          <div class="rodape-links-internos">
+            <a href="#home">Home</a>
+            <a href="#barbeiros">Barbeiros</a>
+            <a href="#servicos">Serviços</a>
+            <a href="#planos">Planos</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COPYRIGHT FORA DA .rodape-conteudo -->
+  <div class="rodape-direitos">
+    Copyright © 2025 Studio Money Barber. Todos os direitos reservados
+  </div>
 </div>
 
 <!-- BARRA INFERIOR MOBILE -->

@@ -7,14 +7,14 @@ import { Servico } from '../models/servico.model';
 export class ServicoService {
   private apiUrl = 'http://192.168.100.183:8080/api/servicos';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   listar(): Observable<Servico[]> {
     return this.http.get<Servico[]>(this.apiUrl);
   }
 
   adicionar(servico: Servico): Observable<Servico> {
-    return this.http.post<Servico>(this.apiUrl, servico);
+    return this.http.post<Servico>(`${this.apiUrl}`, servico);
   }
 
   atualizar(id: number, servico: Servico): Observable<Servico> {

@@ -85,8 +85,12 @@ export class DashtesteComponent implements OnInit, OnDestroy {
     this.listarNotificacoes();
     this.listarImagens();
     this.listarServicos();
-    this.listarCards();
     this.usuarioService.loadUsuarioLogado();
+    this.listarCards();
+
+    window.addEventListener('resize', () => {
+      this.listarCards();
+    });
   }
 
   ngOnDestroy() {
@@ -108,12 +112,13 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   // ---------------------- Serviços ----------------------
   listarServicos() {
     this.servicoService.listar().subscribe((res) => {
-      this.servicos = res;
+      this.servicos = res.sort((a, b) => a.id! - b.id!);
       this.totalPaginas = Math.ceil(this.servicos.length / this.itensPorPagina);
       this.paginas = Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
       this.irParaPagina(1);
     });
   }
+
 
   irParaPagina(pagina: number) {
     this.paginaAtual = pagina;
@@ -137,9 +142,23 @@ export class DashtesteComponent implements OnInit, OnDestroy {
       ? this.servicoService.atualizar(this.novoServico.id, this.novoServico)
       : this.servicoService.adicionar(this.novoServico);
 
-    op.subscribe(() => {
+    op.subscribe((servicoSalvo: Servico) => {
+      if (this.novoServico.id) {
+        // Edição: substitui no array original, mantendo a ordem
+        const index = this.servicos.findIndex(s => s.id === this.novoServico.id);
+        if (index !== -1) {
+          this.servicos[index] = { ...servicoSalvo }; // atualiza mantendo posição
+        }
+      } else {
+        // Criação: adiciona ao final
+        this.servicos.push(servicoSalvo);
+      }
+
+      this.totalPaginas = Math.ceil(this.servicos.length / this.itensPorPagina);
+      this.paginas = Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+      this.irParaPagina(this.paginaAtual); // mantém a página atual
+
       this.cancelarFormularioServico();
-      this.listarServicos();
     });
   }
 
@@ -286,27 +305,48 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   // ---------------------- Carrossel de Cards ----------------------
   listarCards() {
     this.cardService.listar().subscribe((res) => {
-      this.cards = res.map((c) => ({ ...c, imagemPath: 'http://localhost:8080' + c.imagemPath }));
-      this.cardsVisiveis = this.cards.slice(0, 5);
-      this.proximoIndexCard = 5 % this.cards.length;
-      this.iniciarCarrosselCards();
+      const host = window.location.hostname;
+
+      this.cards = res.map((c) => ({
+        ...c,
+        imagemPath: c.imagemPath
+          ? `http://${host}:8080${c.imagemPath}`
+          : 'assets/imagem-nao-encontrada.png' // fallback para evitar quebra
+      }));
+
+      const largura = window.innerWidth;
+
+      const quantidade = largura <= 768 ? 4 : 5;
+
+      this.cardsVisiveis = this.cards.slice(0, quantidade);
+      this.proximoIndexCard = quantidade % this.cards.length;
+
+      this.iniciarCarrosselCards(quantidade);
     });
   }
 
-  iniciarCarrosselCards() {
+
+  iniciarCarrosselCards(quantidadeVisivel: number) {
     if (this.intervaloCarrosselCards) clearInterval(this.intervaloCarrosselCards);
 
-    if (this.cards.length <= 5) {
+    if (this.cards.length <= quantidadeVisivel) {
       this.cardsVisiveis = [...this.cards];
       return;
     }
 
     this.intervaloCarrosselCards = setInterval(() => {
-      this.cardsVisiveis.shift();
-      this.cardsVisiveis.push(this.cards[this.proximoIndexCard]);
+      const novosCards: Card[] = [];
+
+      for (let i = 0; i < quantidadeVisivel; i++) {
+        const index = (this.proximoIndexCard + i) % this.cards.length;
+        novosCards.push(this.cards[index]);
+      }
+
+      this.cardsVisiveis = novosCards;
       this.proximoIndexCard = (this.proximoIndexCard + 1) % this.cards.length;
     }, 5000);
   }
+
 
   abrirFormularioCard(card?: Card) {
     if (card) {
