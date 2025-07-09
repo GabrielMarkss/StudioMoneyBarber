@@ -9,6 +9,8 @@ public class Card {
     private Long id;
 
     private String descricao;
+
+    @Column(columnDefinition = "TEXT")
     private String imagemPath;
 
     public Long getId() {
@@ -27,7 +29,7 @@ public class Card {
         this.descricao = descricao;
     }
 
-    public String getimagemPath() {
+    public String getImagemPath() {
         return imagemPath;
     }
 

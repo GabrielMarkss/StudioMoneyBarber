@@ -6,14 +6,16 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px;
-  ">
+  "
+>
   <div class="left" style="display: flex; align-items: center">
     <img
       src="assets/user-profile.png"
       alt="Perfil"
       routerLink="/dashteste"
       class="profile-img"
-      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer" />
+      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer"
+    />
     <div class="greeting" style="color: white">
       <div style="font-size: 20px; font-weight: bold">
         Olá, {{ usuarioService.nomeUsuario || "..." }}
@@ -30,18 +32,21 @@
       gap: 0.5rem;
       padding-bottom: 0.25px;
       margin-top: 20px;
-    ">
+    "
+  >
     <!-- Ícone Notificação com pop-up -->
     <div
       class="notificacao-wrapper"
       (mouseenter)="abrirNotificacao()"
       (mouseleave)="fecharNotificacao()"
-      style="margin-right: 0.625rem">
+      style="margin-right: 0.625rem"
+    >
       <img
         src="assets/notificacao.png"
         alt="Notificações"
         class="notificacao"
-        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)" />
+        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)"
+      />
 
       <!-- Pop-up dinâmico -->
       <div class="notificacao-popup" *ngIf="mostrarNotificacoes">
@@ -50,7 +55,8 @@
             <img
               [src]="n.imagemUrl"
               alt="Imagem"
-              style="width: 100%; height: 100%" />
+              style="width: 100%; height: 100%"
+            />
           </div>
           <div class="notificacao-conteudo">
             <strong>{{ n.titulo }}</strong>
@@ -63,33 +69,37 @@
               align-items: center;
               gap: 0.3rem;
               margin-left: auto;
-            ">
+            "
+          >
             <span
               class="icone-acao editar notificacao"
               title="Editar notificação"
-              style="font-size: 17px;"
-              (click)="editarNotificacao(n)">✎</span>
+              style="font-size: 17px"
+              (click)="editarNotificacao(n)"
+              >✎</span
+            >
 
             <span
               class="icone-acao apagar notificacao"
               title="Remover notificação"
-              style="font-weight: bold;"
-              (click)="confirmarRemocao(n)">✕</span>
+              style="font-weight: bold"
+              (click)="confirmarRemocao(n)"
+              >✕</span
+            >
           </div>
         </div>
 
         <div
           class="nova-notificacao"
           *ngIf="usuarioService.usuarioEhAdmin()"
-          (click)="abrirFormularioNotificacao()">
+          (click)="abrirFormularioNotificacao()"
+        >
           + Nova notificação
         </div>
       </div>
 
       <!-- Formulário de criação (modal) -->
-      <div
-        class="formulario-modal"
-        *ngIf="mostrarFormulario">
+      <div class="formulario-modal" *ngIf="mostrarFormulario">
         <h3 style="color: black; margin-top: 0">Nova Notificação</h3>
 
         <input
@@ -97,18 +107,21 @@
           [(ngModel)]="nova.titulo"
           class="form-control"
           placeholder="Título da notificação"
-          style="width: 100%" />
+          style="width: 100%"
+        />
         <textarea
           [(ngModel)]="nova.descricao"
           class="form-control"
           placeholder="Descrição da notificação"
           style="width: 100%; resize: none"
-          rows="3"></textarea>
+          rows="3"
+        ></textarea>
 
         <input
           style="color: black"
           type="file"
-          (change)="onFileChange($event)" />
+          (change)="onFileChange($event)"
+        />
 
         <div class="botoes-container">
           <button class="cancelar" (click)="cancelarFormulario()">
@@ -119,7 +132,8 @@
             (click)="salvarNotificacao()"
             [disabled]="
               !nova.titulo.trim() || !nova.descricao.trim() || !nova.imagemUrl
-            ">
+            "
+          >
             Salvar
           </button>
         </div>
@@ -130,7 +144,8 @@
     <div
       class="dropdown"
       (mouseenter)="abrirMenu()"
-      (mouseleave)="fecharMenu()">
+      (mouseleave)="fecharMenu()"
+    >
       <div class="dropdown-toggle">☰</div>
       <ul class="dropdown-menu" *ngIf="menuAberto">
         <li><a routerLink="/menu">Perfil</a></li>
@@ -145,46 +160,57 @@
 <div class="carrossel-container" *ngIf="imagens.length > 0; else vazio">
   <div class="carrossel">
     <div class="imagem-wrapper" *ngIf="imagemAtual">
-
       <!-- BOTÃO PREV -->
       <button
         class="botao-navegacao esquerdo"
         *ngIf="imagens.length > 1"
-        (click)="anteriorImagem()">‹</button>
+        (click)="anteriorImagem()"
+      >
+        ‹
+      </button>
 
       <!-- IMAGEM -->
       <img [src]="imagemAtual.url" alt="Imagem" class="carrossel-img" />
 
       <!-- BOTÕES DE AÇÃO (admin) -->
       <div class="botoes-hover" *ngIf="usuarioService.usuarioEhAdmin()">
-        <button class="botao-adicionar"
-          (click)="abrirFormularioImagem()">＋</button>
-        <button class="botao-editar"
-          (click)="editarImagem(imagemAtual)">✎</button>
-        <button class="botao-remover"
-          (click)="removerImagem(imagemAtual)">🗑</button>
+        <button class="botao-adicionar" (click)="abrirFormularioImagem()">
+          ＋
+        </button>
+        <button class="botao-editar" (click)="editarImagem(imagemAtual)">
+          ✎
+        </button>
+        <button class="botao-remover" (click)="removerImagem(imagemAtual)">
+          🗑
+        </button>
       </div>
 
       <!-- BOTÃO NEXT -->
       <button
         class="botao-navegacao direito"
         *ngIf="imagens.length > 1"
-        (click)="proximaImagem()">›</button>
+        (click)="proximaImagem()"
+      >
+        ›
+      </button>
     </div>
   </div>
 </div>
 
 <ng-template #vazio>
   <div class="carrossel-vazio">
-    <p style="color: gray; text-align: center"
-      *ngIf="usuarioService.usuarioEhAdmin()">
+    <p
+      style="color: gray; text-align: center"
+      *ngIf="usuarioService.usuarioEhAdmin()"
+    >
       Nenhuma imagem adicionada ainda.
     </p>
     <div style="display: flex; justify-content: center; margin-top: 10px">
       <button
         *ngIf="usuarioService.usuarioEhAdmin()"
         class="botao-central"
-        (click)="abrirFormularioImagem()">
+        (click)="abrirFormularioImagem()"
+      >
         ＋ Adicionar imagem
       </button>
     </div>
@@ -192,22 +218,37 @@
 </ng-template>
 
 <!-- Modal de formulário -->
-<!-- Formulário de imagens -->
-<div class="formulario-modal" *ngIf="mostrarFormularioImagem"
-  style="z-index: 1000">
+<div
+  class="formulario-modal"
+  *ngIf="mostrarFormularioImagem"
+  style="z-index: 1000"
+>
   <h3 style="color: black; margin-top: 0">Imagem do Carrossel</h3>
 
   <input
     type="file"
     accept="image/*"
     (change)="onFileChangeImagem($event)"
-    style="margin-bottom: 10px" />
+    style="margin-bottom: 10px"
+  />
+
+  <div *ngIf="novaImagem.url" style="margin-bottom: 10px">
+    <img
+      [src]="novaImagem.url"
+      alt="Preview da imagem"
+      style="max-width: 100%; max-height: 200px"
+    />
+  </div>
 
   <div class="botoes-container">
-    <button class="cancelar"
-      (click)="cancelarFormularioImagem()">Cancelar</button>
-    <button class="salvar" (click)="salvarImagem()"
-      [disabled]="!novaImagem.url">
+    <button class="cancelar" (click)="cancelarFormularioImagem()">
+      Cancelar
+    </button>
+    <button
+      class="salvar"
+      (click)="salvarImagem()"
+      [disabled]="!novaImagemArquivo"
+    >
       Salvar
     </button>
   </div>
@@ -225,8 +266,9 @@
         <small>&#64;felipe_franca_12</small>
         <p>
           <strong>Contato: </strong>
-          <a class="contato" href="https://wa.me/5562999361327">(62)
-            99936-1327</a>
+          <a class="contato" href="https://wa.me/5562999361327"
+            >(62) 99936-1327</a
+          >
         </p>
         <p>
           Você pode agendar com Felipe pelo WhatsApp ou
@@ -243,8 +285,9 @@
         <small>&#64;ezequiel_sntsss</small>
         <p>
           <strong>Contato: </strong>
-          <a class="contato" href="https://wa.me/5562991145896">(62)
-            99114-5896</a>
+          <a class="contato" href="https://wa.me/5562991145896"
+            >(62) 99114-5896</a
+          >
         </p>
         <p>
           Você pode agendar com Ezequiel pelo WhatsApp ou
@@ -269,7 +312,8 @@
         <button
           *ngIf="usuarioService.usuarioEhAdmin()"
           (click)="abrirFormulario()"
-          class="botao-criar">
+          class="botao-criar"
+        >
           Criar serviço
         </button>
       </div>
@@ -286,16 +330,18 @@
                 <button
                   class="icone-acao editar"
                   title="Editar servico"
-                  style="font-size: 17px;"
-                  (click)="abrirFormulario(servico)">
+                  style="font-size: 17px"
+                  (click)="abrirFormulario(servico)"
+                >
                   ✎
                 </button>
 
                 <button
                   class="icone-acao apagar"
                   title="Remover servico"
-                  style="font-weight: bold;"
-                  (click)="deletarServico(servico.id!)">
+                  style="font-weight: bold"
+                  (click)="deletarServico(servico.id!)"
+                >
                   ✕
                 </button>
               </ng-container>
@@ -313,7 +359,8 @@
                 class="pagina"
                 [class.ativa]="paginaAtual === pagina"
                 *ngFor="let pagina of paginas"
-                (click)="irParaPagina(pagina)">
+                (click)="irParaPagina(pagina)"
+              >
                 {{ pagina }}
               </span>
             </div>
@@ -335,7 +382,8 @@
           name="nome"
           required
           class="form-control"
-          style="width: 100%; margin-bottom: 10px" />
+          style="width: 100%; margin-bottom: 10px"
+        />
 
         <label style="color: black; font-weight: bold">Preço</label>
         <input
@@ -344,7 +392,8 @@
           name="preco"
           required
           class="form-control"
-          style="width: 100%; margin-bottom: 15px" />
+          style="width: 100%; margin-bottom: 15px"
+        />
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem">
           <button
@@ -356,7 +405,8 @@
               padding: 8px 14px;
               border-radius: 6px;
               cursor: pointer;
-            ">
+            "
+          >
             Cancelar
           </button>
           <button
@@ -369,7 +419,8 @@
               padding: 8px 14px;
               border-radius: 6px;
               cursor: pointer;
-            ">
+            "
+          >
             Salvar
           </button>
         </div>
@@ -383,10 +434,14 @@
       <img [src]="c.imagemPath" alt="Imagem" style="width: 55px" />
       <p class="card-descricao">{{ c.descricao }}</p>
       <div class="card-acoes" *ngIf="usuarioService.usuarioEhAdmin()">
-        <button class="editar-card"
-          (click)="abrirFormularioCard(c)">✎</button>
-        <button class="apagar-card" style="font-weight: bold;"
-          (click)="deletarCard(c.id!)">✕</button>
+        <button class="editar-card" (click)="abrirFormularioCard(c)">✎</button>
+        <button
+          class="apagar-card"
+          style="font-weight: bold"
+          (click)="deletarCard(c.id!)"
+        >
+          ✕
+        </button>
       </div>
     </div>
   </div>
@@ -404,13 +459,20 @@
 
     <label for="descricao">Descrição:</label>
     <textarea
+      id="descricao"
       [(ngModel)]="novoCardDescricao"
       placeholder="Digite a descrição do card..."
       rows="4"
-      class="textarea-descricao"></textarea>
+      class="textarea-descricao"
+    ></textarea>
 
     <label for="imagem">Imagem:</label>
-    <input type="file" (change)="onFileChangeCard($event)" class="input-file" />
+    <input
+      id="imagem"
+      type="file"
+      (change)="onFileChangeCard($event)"
+      class="input-file"
+    />
 
     <div class="botoes-formulario-card">
       <button class="btn-cancelar" (click)="cancelarFormularioCard()">
@@ -419,7 +481,8 @@
       <button
         class="btn-salvar"
         (click)="salvarCard()"
-        [disabled]="!novoCardDescricao || (!novoCardImagem && !cardEditando)">
+        [disabled]="!novoCardDescricao || (!novoCardImagem && !cardEditando)"
+      >
         Salvar
       </button>
     </div>
@@ -453,38 +516,16 @@
     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3822.257878882561!2d-49.229727924858416!3d-16.663974044968104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935ef3059d42ca45%3A0x287fe03c189b0775!2sStudio%20Money%20Barber!5e0!3m2!1spt-BR!2sbr!4v1751644981020!5m2!1spt-BR!2sbr"
     allowfullscreen
     loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade">
+    referrerpolicy="no-referrer-when-downgrade"
+  >
   </iframe>
 </div>
-<br>
+<br />
 
+<!-- RODAPÉ COMPLETO -->
+<!-- RODAPÉ -->
 <div class="rodape">
   <div class="rodape-conteudo">
-    <!-- CONTATO -->
-    <div class="rodape-coluna">
-      <h4>Contato</h4>
-      <p><img src="assets/whatsapp.png" alt="WhatsApp do Felipe"
-          class="rede-social" /> (62) 99936-1327</p>
-      <p><img src="assets/whatsapp.png" alt="WhatsApp do Ezequiel"
-          class="rede-social" /> (62) 99114-5896</p>
-      <p><img src="assets/gmail.png" alt="WhatsApp do Ezequiel"
-          class="rede-social" /> studiomoneybarber&#64;gmail.com</p>
-    </div>
-
-    <!-- REDES SOCIAIS -->
-    <div class="rodape-coluna">
-      <h4>Redes Sociais</h4>
-      <p><img src="assets/instagram.png" alt="Instagram"
-          class="rede-social"
-          width="20px" />
-        <a href="https://www.instagram.com/studio_money_barber/"
-          target="_blank"> Instagram</a></p>
-      <p><img src="assets/facebook.png" alt="Facebook"
-          class="rede-social"
-          width="20px" /><a href="https://facebook.com"
-          target="_blank"> Facebook</a></p>
-    </div>
-
     <!-- LOGO + TÍTULO + LINKS -->
     <div class="rodape-coluna logo-coluna">
       <div class="logo-wrapper">
@@ -492,30 +533,70 @@
         <div class="logo-texto">
           <span class="logo-titulo">Studio Money Barber</span>
           <div class="rodape-links-internos">
-            <a href="#home">Home</a>
-            <a href="#barbeiros">Barbeiros</a>
-            <a href="#servicos">Serviços</a>
-            <a href="#planos">Planos</a>
+            <a href="#">Home</a>
+            <a href="#">Barbeiros</a>
+            <a href="#">Serviços</a>
+            <a href="#">Planos</a>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- CONTATO -->
+    <div class="rodape-coluna">
+      <h4>Contato</h4>
+      <p>
+        <img
+          src="assets/whatsapp.png"
+          alt="WhatsApp do Felipe"
+          class="rede-social"
+        />
+        (62) 99936-1327 / (62) 99114-5896
+      </p>
+      <p>
+        <img src="assets/gmail.png" alt="Email" class="rede-social" />
+        studiomoneybarber&#64;gmail.com
+      </p>
+    </div>
+
+    <!-- REDES SOCIAIS -->
+    <div class="rodape-coluna">
+      <h4>Redes Sociais</h4>
+      <p>
+        <img
+          src="assets/instagram.png"
+          alt="Instagram"
+          class="rede-social"
+          width="20px"
+        />
+        <a
+          href="https://www.instagram.com/studio_money_barber/"
+          target="_blank"
+        >
+          Instagram</a
+        >
+      </p>
+      <p>
+        <img
+          src="assets/facebook.png"
+          alt="Facebook"
+          class="rede-social"
+          width="20px"
+        />
+        <a href="https://facebook.com" target="_blank"> Facebook</a>
+      </p>
+    </div>
   </div>
 
-  <!-- COPYRIGHT FORA DA .rodape-conteudo -->
   <div class="rodape-direitos">
     Copyright © 2025 Studio Money Barber. Todos os direitos reservados
   </div>
 </div>
 
 <!-- BARRA INFERIOR MOBILE -->
-<nav class="bottom-nav">
+<div class="bottom-nav">
   <a routerLink="/dashteste" class="nav-item">
-    <img
-      src="assets/home-ativa.png"
-      alt="Início"
-      width="38px"
-      height="32px" />
+    <img src="assets/home-ativa.png" alt="Início" width="38px" height="32px" />
     <span style="color: #f46d25; font-weight: bold">Início</span>
   </a>
   <a routerLink="/galeria" class="nav-item">
@@ -527,7 +608,8 @@
       src="assets/agendamento.png"
       alt="Agendamentos"
       width="34px"
-      height="34px" />
+      height="34px"
+    />
     <span>Agendamentos</span>
   </a>
   <a routerLink="/produtos" class="nav-item">
@@ -535,11 +617,7 @@
     <span>Produtos</span>
   </a>
   <a routerLink="/menu" class="nav-item">
-    <img
-      src="assets/user-profile.png"
-      alt="Menu"
-      width="40px"
-      height="40px" />
+    <img src="assets/user-profile.png" alt="Menu" width="40px" height="40px" />
     <span>Menu</span>
   </a>
-</nav>
+</div>

@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  private api = 'http://192.168.100.183:8080/api/usuarios';
+  // private api = 'http://192.168.100.183:8080/api/usuarios';
+  private api = 'http://localhost:8080/api/usuarios';
 
   nomeUsuario: string = '';
   private usuarioLogado: {
@@ -14,7 +15,7 @@ export class UsuarioService {
     admin: boolean;
   } | null = null;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {}
 
   login(payload: {
     identificador: string;
@@ -104,5 +105,4 @@ export class UsuarioService {
       });
     }
   }
-
 }

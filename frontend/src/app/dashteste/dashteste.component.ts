@@ -10,13 +10,14 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CardService } from '../service/card.service';
 import { Card } from '../models/card-servico.model';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashteste',
   templateUrl: './dashteste.component.html',
   styleUrls: ['./dashteste.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
 })
 export class DashtesteComponent implements OnInit, OnDestroy {
   menuAberto = false;
@@ -37,6 +38,7 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   // ---------------------- Carrossel de Imagem ----------------------
   imagens: any[] = [];
   imagemAtual: any = null;
+  novaImagemArquivo: File | null = null;
   novaImagem: any = { id: null, url: '' };
   mostrarFormularioImagem = false;
   indiceImagemAtual: number = 0;
@@ -66,14 +68,38 @@ export class DashtesteComponent implements OnInit, OnDestroy {
     private notificacaoService: NotificacaoService,
     private carrosselImagem: CarrosselImagem,
     private servicoService: ServicoService,
-    private cardService: CardService
-  ) { }
+    private cardService: CardService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     const data = new Date();
-    const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-    const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${meses[data.getMonth()]} ${data.getFullYear()}`;
+    const dias = [
+      'Domingo',
+      'Segunda',
+      'Terça',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'Sábado',
+    ];
+    const meses = [
+      'jan',
+      'fev',
+      'mar',
+      'abr',
+      'mai',
+      'jun',
+      'jul',
+      'ago',
+      'set',
+      'out',
+      'nov',
+      'dez',
+    ];
+    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${
+      meses[data.getMonth()]
+    } ${data.getFullYear()}`;
 
     if (this.usuarioService.isLoggedIn()) {
       this.usuarioService.getUsuarioLogado().subscribe({
@@ -94,8 +120,10 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.intervaloCarrosselImagem) clearInterval(this.intervaloCarrosselImagem);
-    if (this.intervaloCarrosselCards) clearInterval(this.intervaloCarrosselCards);
+    if (this.intervaloCarrosselImagem)
+      clearInterval(this.intervaloCarrosselImagem);
+    if (this.intervaloCarrosselCards)
+      clearInterval(this.intervaloCarrosselCards);
   }
 
   abrirMenu() {
@@ -118,7 +146,6 @@ export class DashtesteComponent implements OnInit, OnDestroy {
       this.irParaPagina(1);
     });
   }
-
 
   irParaPagina(pagina: number) {
     this.paginaAtual = pagina;
@@ -144,19 +171,19 @@ export class DashtesteComponent implements OnInit, OnDestroy {
 
     op.subscribe((servicoSalvo: Servico) => {
       if (this.novoServico.id) {
-        // Edição: substitui no array original, mantendo a ordem
-        const index = this.servicos.findIndex(s => s.id === this.novoServico.id);
+        const index = this.servicos.findIndex(
+          (s) => s.id === this.novoServico.id
+        );
         if (index !== -1) {
-          this.servicos[index] = { ...servicoSalvo }; // atualiza mantendo posição
+          this.servicos[index] = { ...servicoSalvo };
         }
       } else {
-        // Criação: adiciona ao final
         this.servicos.push(servicoSalvo);
       }
 
       this.totalPaginas = Math.ceil(this.servicos.length / this.itensPorPagina);
       this.paginas = Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
-      this.irParaPagina(this.paginaAtual); // mantém a página atual
+      this.irParaPagina(this.paginaAtual);
 
       this.cancelarFormularioServico();
     });
@@ -212,7 +239,9 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   }
 
   listarNotificacoes() {
-    this.notificacaoService.listar().subscribe((res) => (this.notificacoes = res));
+    this.notificacaoService
+      .listar()
+      .subscribe((res) => (this.notificacoes = res));
   }
 
   confirmarRemocao(notificacao: Notificacao) {
@@ -231,18 +260,22 @@ export class DashtesteComponent implements OnInit, OnDestroy {
 
   // ---------------------- Carrossel de Imagem ----------------------
   abrirFormularioImagem() {
+    this.novaImagemArquivo = null;
     this.novaImagem = { id: null, url: '' };
     this.mostrarFormularioImagem = true;
   }
 
   cancelarFormularioImagem() {
     this.mostrarFormularioImagem = false;
+    this.novaImagemArquivo = null;
     this.novaImagem = { id: null, url: '' };
   }
 
   onFileChangeImagem(event: any) {
     const file = event.target.files[0];
     if (file) {
+      this.novaImagemArquivo = file;
+
       const reader = new FileReader();
       reader.onload = () => (this.novaImagem.url = reader.result as string);
       reader.readAsDataURL(file);
@@ -250,14 +283,20 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   }
 
   salvarImagem() {
-    const op = this.novaImagem.id
-      ? this.carrosselImagem.atualizarImagem(this.novaImagem)
-      : this.carrosselImagem.criarImagem(this.novaImagem);
+    if (!this.novaImagemArquivo) {
+      alert('Selecione uma imagem antes de salvar.');
+      return;
+    }
 
-    op.subscribe(() => {
-      this.listarImagens();
-      this.cancelarFormularioImagem();
-    });
+    const formData = new FormData();
+    formData.append('imagem', this.novaImagemArquivo);
+
+    this.http
+      .post('http://localhost:8080/api/imagens', formData)
+      .subscribe(() => {
+        this.listarImagens();
+        this.cancelarFormularioImagem();
+      });
   }
 
   editarImagem(imagem: any) {
@@ -271,11 +310,13 @@ export class DashtesteComponent implements OnInit, OnDestroy {
       this.indiceImagemAtual = 0;
       this.imagemAtual = this.imagens.length > 0 ? this.imagens[0] : null;
 
-      if (this.intervaloCarrosselImagem) clearInterval(this.intervaloCarrosselImagem);
+      if (this.intervaloCarrosselImagem)
+        clearInterval(this.intervaloCarrosselImagem);
 
       if (this.imagens.length > 1) {
         this.intervaloCarrosselImagem = setInterval(() => {
-          this.indiceImagemAtual = (this.indiceImagemAtual + 1) % this.imagens.length;
+          this.indiceImagemAtual =
+            (this.indiceImagemAtual + 1) % this.imagens.length;
           this.imagemAtual = this.imagens[this.indiceImagemAtual];
         }, 5000);
       }
@@ -284,38 +325,43 @@ export class DashtesteComponent implements OnInit, OnDestroy {
 
   removerImagem(imagem: any) {
     if (confirm('Deseja remover esta imagem?')) {
-      this.carrosselImagem.deletarImagem(imagem.id).subscribe(() => this.listarImagens());
+      this.carrosselImagem
+        .deletarImagem(imagem.id)
+        .subscribe(() => this.listarImagens());
     }
   }
 
   anteriorImagem() {
     if (this.imagens.length > 0) {
-      this.indiceImagemAtual = (this.indiceImagemAtual - 1 + this.imagens.length) % this.imagens.length;
+      this.indiceImagemAtual =
+        (this.indiceImagemAtual - 1 + this.imagens.length) %
+        this.imagens.length;
       this.imagemAtual = this.imagens[this.indiceImagemAtual];
     }
   }
 
   proximaImagem() {
     if (this.imagens.length > 0) {
-      this.indiceImagemAtual = (this.indiceImagemAtual + 1) % this.imagens.length;
+      this.indiceImagemAtual =
+        (this.indiceImagemAtual + 1) % this.imagens.length;
       this.imagemAtual = this.imagens[this.indiceImagemAtual];
     }
   }
 
-  // ---------------------- Carrossel de Cards ----------------------
+  // ======= CARDS ========
   listarCards() {
     this.cardService.listar().subscribe((res) => {
       const host = window.location.hostname;
+      const port = 8080;
 
       this.cards = res.map((c) => ({
         ...c,
         imagemPath: c.imagemPath
-          ? `http://${host}:8080${c.imagemPath}`
-          : 'assets/imagem-nao-encontrada.png' // fallback para evitar quebra
+          ? `http://${host}:${port}${c.imagemPath}`
+          : 'assets/imagem-nao-encontrada.png',
       }));
 
       const largura = window.innerWidth;
-
       const quantidade = largura <= 768 ? 4 : 5;
 
       this.cardsVisiveis = this.cards.slice(0, quantidade);
@@ -325,9 +371,9 @@ export class DashtesteComponent implements OnInit, OnDestroy {
     });
   }
 
-
   iniciarCarrosselCards(quantidadeVisivel: number) {
-    if (this.intervaloCarrosselCards) clearInterval(this.intervaloCarrosselCards);
+    if (this.intervaloCarrosselCards)
+      clearInterval(this.intervaloCarrosselCards);
 
     if (this.cards.length <= quantidadeVisivel) {
       this.cardsVisiveis = [...this.cards];
@@ -347,11 +393,11 @@ export class DashtesteComponent implements OnInit, OnDestroy {
     }, 5000);
   }
 
-
   abrirFormularioCard(card?: Card) {
     if (card) {
       this.cardEditando = { ...card };
       this.novoCardDescricao = card.descricao;
+      this.novoCardImagem = null; // mantém imagem antiga até trocar
     } else {
       this.cardEditando = null;
       this.novoCardDescricao = '';
@@ -368,18 +414,40 @@ export class DashtesteComponent implements OnInit, OnDestroy {
   }
 
   onFileChangeCard(event: any) {
-    this.novoCardImagem = event.target.files[0];
+    const file = event.target.files[0];
+    if (file) {
+      this.novoCardImagem = file;
+    }
   }
 
   salvarCard() {
-    const op = this.cardEditando
-      ? this.cardService.atualizar(this.cardEditando.id!, this.novoCardDescricao, this.novoCardImagem!)
-      : this.cardService.criar(this.novoCardDescricao, this.novoCardImagem!);
+    if (this.cardEditando) {
+      // Atualizar card
+      this.cardService
+        .atualizar(
+          this.cardEditando.id!,
+          this.novoCardDescricao,
+          this.novoCardImagem ?? undefined // aqui a correção
+        )
 
-    op.subscribe(() => {
-      this.listarCards();
-      this.cancelarFormularioCard();
-    });
+        .subscribe(() => {
+          this.listarCards();
+          this.cancelarFormularioCard();
+        });
+    } else {
+      // Criar novo card
+      if (!this.novoCardImagem) {
+        alert('Selecione uma imagem para o novo card.');
+        return;
+      }
+
+      this.cardService
+        .criar(this.novoCardDescricao, this.novoCardImagem ?? undefined)
+        .subscribe(() => {
+          this.listarCards();
+          this.cancelarFormularioCard();
+        });
+    }
   }
 
   deletarCard(id: number) {

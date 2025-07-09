@@ -5,7 +5,8 @@ import { Servico } from '../models/servico.model';
 
 @Injectable({ providedIn: 'root' })
 export class ServicoService {
-  private apiUrl = 'http://192.168.100.183:8080/api/servicos';
+  // private apiUrl = 'http://192.168.100.183:8080/api/servicos';
+  private apiUrl = 'http://localhost:8080/api/servicos';
 
   constructor(private http: HttpClient) { }
 

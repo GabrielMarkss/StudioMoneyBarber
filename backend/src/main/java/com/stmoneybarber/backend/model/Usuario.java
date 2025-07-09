@@ -1,9 +1,12 @@
 package com.stmoneybarber.backend.model;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "usuarios")
+@CrossOrigin("*")
 public class Usuario {
 
     @Id
