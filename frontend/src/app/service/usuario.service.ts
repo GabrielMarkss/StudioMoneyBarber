@@ -59,8 +59,7 @@ export class UsuarioService {
   logout() {
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');
-    this.usuarioLogado = null;
-    this.router.navigate(['/']);
+    this.nomeUsuario = '';
   }
 
   getToken(): string | null {

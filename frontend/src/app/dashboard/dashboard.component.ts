@@ -1,294 +1,554 @@
-import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  FormsModule,
-} from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Tabela } from '../models/tabelaServicos.model';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UsuarioService } from '../service/usuario.service';
-
-interface Card {
-  id?: number;
-  titulo: string;
-  descricao: string;
-  imagemUrl: string;
-}
+import { NotificacaoService } from '../service/notificacao.service';
+import { CarrosselImagem } from '../service/carrosselImagem.service';
+import { ServicoService } from '../service/servico.service';
+import { Notificacao } from '../models/Notificacao.model';
+import { Servico } from '../models/servico.model';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { CardService } from '../service/card.service';
+import { Card } from '../models/card-servico.model';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Barbeiro } from '../models/barbeiro.model';
+import { BarbeiroService } from '../service/barbeiro.service';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
 })
-export class DashboardComponent implements OnInit {
-  // Formulários
-  cardForm: FormGroup;
-  servicoForm: FormGroup;
-  editCardForm: FormGroup;
+export class DashboardComponent implements OnInit, OnDestroy {
+  menuAberto = false;
+  mostrarNotificacoes = false;
+  mostrarFormulario = false;
+  mostrarFormularioServico = false;
 
-  // Controle de Estado
-  showCardForm = false;
-  showServicoForm = false;
-  isEditando = false;
-  isEditandoCard = false;
-  showEditByIdForm = false;
-  servicoEditandoId: number | null = null;
-  editandoCardId: number | null = null;
-  imagePreview: string | null = null;
-  editImagePreview: string | null = null;
-  isAdmin = false;
+  menuTimeout: any;
+  notificacaoTimeout: any;
 
-  // Dados
-  cards: Card[] = [];
-  precos: Tabela[] = [];
-  precosPagina1: Tabela[] = [];
-  precosPagina2: Tabela[] = [];
+  dataHoje: string = '';
+
+  // ---------------------- Notificações ----------------------
+  notificacoes: Notificacao[] = [];
+  nova: Notificacao = { titulo: '', descricao: '', imagemUrl: '' };
+  imagemSelecionada: File | null = null;
+
+  // ---------------------- Carrossel de Imagem ----------------------
+  imagens: any[] = [];
+  imagemAtual: any = null;
+  novaImagemArquivo: File | null = null;
+  novaImagem: any | null = null;
+  mostrarFormularioImagem = false;
+  indiceImagemAtual: number = 0;
+  intervaloCarrosselImagem: any;
+
+  // ----------------- Barbeiros -----------------
+  barbeiros: Barbeiro[] = [];
+  novoBarbeiro: Barbeiro = this.resetarFormularioBarbeiro();
+  editarBarbeiro: boolean = false;
+  editandoId: number | null = null;
+  imagemPreview: string | null = null;
+  mostrarFormularioBarbeiro = false;
+
+  // ---------------------- Serviços ----------------------
+  servicos: Servico[] = [];
+  servicosPaginados: Servico[] = [];
+  novoServico: Servico = { nome: '', preco: 0 };
+  itensPorPagina = 9;
   paginaAtual = 1;
+  totalPaginas = 1;
+  paginas: number[] = [];
+
+  // ---------------------- Carrossel de Cards ----------------------
+  cards: Card[] = [];
+  novoCardDescricao = '';
+  novoCardImagem: File | null = null;
+  cardEditando: Card | null = null;
+  mostrarFormularioCard = false;
+  cardsVisiveis: Card[] = [];
+  proximoIndexCard = 0;
+  intervaloCarrosselCards: any;
 
   constructor(
-    private fb: FormBuilder,
+    public usuarioService: UsuarioService,
+    private router: Router,
+    private notificacaoService: NotificacaoService,
+    private carrosselImagem: CarrosselImagem,
+    private servicoService: ServicoService,
+    private cardService: CardService,
     private http: HttpClient,
-    private usuarioService: UsuarioService
-  ) {
-    this.cardForm = this.fb.group({
-      titulo: ['', Validators.required],
-      descricao: ['', Validators.required],
-      imagemFile: [null, Validators.required],
-    });
-
-    this.editCardForm = this.fb.group({
-      id: [null, Validators.required],
-      titulo: ['', Validators.required],
-      descricao: ['', Validators.required],
-      imagemFile: [null],
-    });
-
-    this.servicoForm = this.fb.group({
-      nome: ['', Validators.required],
-      preco: [null, [Validators.required, Validators.min(0)]],
-    });
-
-    const perfil = localStorage.getItem('perfil');
-    this.isAdmin = perfil === 'ADMIN';
-  }
+    private barbeiroService: BarbeiroService // 👈 adicionado aqui
+  ) {}
 
   ngOnInit(): void {
-    this.carregarServicos();
-    this.carregarCards();
+    const data = new Date();
+    const dias = [
+      'Domingo',
+      'Segunda',
+      'Terça',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'Sábado',
+    ];
+    const meses = [
+      'jan',
+      'fev',
+      'mar',
+      'abr',
+      'mai',
+      'jun',
+      'jul',
+      'ago',
+      'set',
+      'out',
+      'nov',
+      'dez',
+    ];
+    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${
+      meses[data.getMonth()]
+    } ${data.getFullYear()}`;
+
+    if (this.usuarioService.isLoggedIn()) {
+      this.usuarioService.getUsuarioLogado().subscribe({
+        next: (user) => (this.usuarioService.nomeUsuario = user.nome),
+        error: () => (this.usuarioService.nomeUsuario = ''),
+      });
+    }
+
+    this.listarNotificacoes();
+    this.listarImagens();
+    this.carregarBarbeiros();
+    this.listarServicos();
+    this.usuarioService.loadUsuarioLogado();
+    this.listarCards();
+
+    window.addEventListener('resize', () => {
+      this.listarCards();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.intervaloCarrosselImagem)
+      clearInterval(this.intervaloCarrosselImagem);
+    if (this.intervaloCarrosselCards)
+      clearInterval(this.intervaloCarrosselCards);
+  }
+
+  abrirMenu() {
+    clearTimeout(this.menuTimeout);
+    this.menuAberto = true;
+  }
+
+  fecharMenu() {
+    this.menuTimeout = setTimeout(() => {
+      this.menuAberto = false;
+    }, 200);
   }
 
   logout() {
     this.usuarioService.logout();
+    this.router.navigate(['/']); // Redireciona para home
   }
 
-  // Cards
-  carregarCards(): void {
-    this.http.get<Card[]>('http://localhost:8080/api/cards').subscribe({
-      next: (cards) => (this.cards = cards),
-      error: (err) => console.error('Erro ao carregar cards:', err),
+  // ---------------------- Serviços ----------------------
+  listarServicos() {
+    this.servicoService.listar().subscribe((res) => {
+      this.servicos = res.sort((a, b) => a.id! - b.id!);
+      this.totalPaginas = Math.ceil(this.servicos.length / this.itensPorPagina);
+      this.paginas = Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+      this.irParaPagina(1);
     });
   }
 
-  onFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
+  irParaPagina(pagina: number) {
+    this.paginaAtual = pagina;
+    const inicio = (pagina - 1) * this.itensPorPagina;
+    const fim = inicio + this.itensPorPagina;
+    this.servicosPaginados = this.servicos.slice(inicio, fim);
+  }
+
+  abrirFormularioServico(servico?: Servico) {
+    this.novoServico = servico ? { ...servico } : { nome: '', preco: 0 };
+    this.mostrarFormularioServico = true;
+  }
+
+  cancelarFormularioServico() {
+    this.mostrarFormularioServico = false;
+    this.novoServico = { nome: '', preco: 0 };
+  }
+
+  salvarServico() {
+    const op = this.novoServico.id
+      ? this.servicoService.atualizar(this.novoServico.id, this.novoServico)
+      : this.servicoService.adicionar(this.novoServico);
+
+    op.subscribe((servicoSalvo: Servico) => {
+      if (this.novoServico.id) {
+        const index = this.servicos.findIndex(
+          (s) => s.id === this.novoServico.id
+        );
+        if (index !== -1) {
+          this.servicos[index] = { ...servicoSalvo };
+        }
+      } else {
+        this.servicos.push(servicoSalvo);
+      }
+
+      this.totalPaginas = Math.ceil(this.servicos.length / this.itensPorPagina);
+      this.paginas = Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+      this.irParaPagina(this.paginaAtual);
+
+      this.cancelarFormularioServico();
+    });
+  }
+
+  deletarServico(id: number) {
+    if (confirm('Você deseja remover este serviço?')) {
+      this.servicoService.deletar(id).subscribe(() => this.listarServicos());
+    }
+  }
+
+  // ---------------------- Notificações ----------------------
+  abrirNotificacao() {
+    clearTimeout(this.notificacaoTimeout);
+    this.mostrarNotificacoes = true;
+  }
+
+  fecharNotificacao() {
+    this.notificacaoTimeout = setTimeout(() => {
+      this.mostrarNotificacoes = false;
+    }, 150);
+  }
+
+  abrirFormularioNotificacao() {
+    this.mostrarFormulario = true;
+  }
+
+  cancelarFormulario() {
+    this.mostrarFormulario = false;
+    this.nova = { titulo: '', descricao: '', imagemUrl: '' };
+    this.imagemSelecionada = null;
+  }
+
+  onFileChange(event: any) {
+    const file = event.target.files[0];
     if (file) {
-      this.cardForm.patchValue({ imagemFile: file });
+      this.imagemSelecionada = file;
       const reader = new FileReader();
-      reader.onload = () => (this.imagePreview = reader.result as string);
+      reader.onload = () => (this.nova.imagemUrl = reader.result as string);
       reader.readAsDataURL(file);
     }
   }
 
-  onEditFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
+  salvarNotificacao() {
+    const op = this.nova.id
+      ? this.notificacaoService.atualizar(this.nova.id, this.nova)
+      : this.notificacaoService.criar(this.nova);
+
+    op.subscribe(() => {
+      this.cancelarFormulario();
+      this.listarNotificacoes();
+    });
+  }
+
+  listarNotificacoes() {
+    this.notificacaoService
+      .listar()
+      .subscribe((res) => (this.notificacoes = res));
+  }
+
+  confirmarRemocao(notificacao: Notificacao) {
+    if (!confirm('Você deseja remover esta notificação?')) return;
+    const isAdmin = this.usuarioService.usuarioEhAdmin();
+    this.notificacaoService.deletar(notificacao.id!, true, isAdmin).subscribe({
+      next: () => this.listarNotificacoes(),
+      error: (err) => alert(err.error || 'Erro ao remover notificação'),
+    });
+  }
+
+  editarNotificacao(n: Notificacao) {
+    this.nova = { ...n };
+    this.mostrarFormulario = true;
+  }
+
+  // ---------------------- Carrossel de Imagem ----------------------
+  abrirFormularioImagem() {
+    this.novaImagemArquivo = null;
+    this.novaImagem = { id: null, url: '' };
+    this.mostrarFormularioImagem = true;
+  }
+
+  cancelarFormularioImagem() {
+    this.mostrarFormularioImagem = false;
+    this.novaImagemArquivo = null;
+    this.novaImagem = { id: null, url: '' };
+  }
+
+  onFileChangeImagem(event: any) {
+    const file = event.target.files[0];
     if (file) {
-      this.editCardForm.patchValue({ imagemFile: file });
+      this.novaImagemArquivo = file;
+
       const reader = new FileReader();
-      reader.onload = () => (this.editImagePreview = reader.result as string);
+      reader.onload = () => (this.novaImagem.url = reader.result as string);
       reader.readAsDataURL(file);
+    }
+  }
+
+  salvarImagem() {
+    if (!this.novaImagemArquivo) {
+      alert('Selecione uma imagem antes de salvar.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('imagem', this.novaImagemArquivo);
+
+    this.http
+      .post('http://localhost:8080/api/imagens', formData)
+      .subscribe(() => {
+        this.listarImagens();
+        this.cancelarFormularioImagem();
+      });
+  }
+
+  editarImagem(imagem: any) {
+    this.novaImagem = { ...imagem };
+    this.mostrarFormularioImagem = true;
+  }
+
+  listarImagens() {
+    this.carrosselImagem.listarImagens().subscribe((res) => {
+      this.imagens = res;
+      this.indiceImagemAtual = 0;
+      this.imagemAtual = this.imagens.length > 0 ? this.imagens[0] : null;
+
+      if (this.intervaloCarrosselImagem)
+        clearInterval(this.intervaloCarrosselImagem);
+
+      if (this.imagens.length > 1) {
+        this.intervaloCarrosselImagem = setInterval(() => {
+          this.indiceImagemAtual =
+            (this.indiceImagemAtual + 1) % this.imagens.length;
+          this.imagemAtual = this.imagens[this.indiceImagemAtual];
+        }, 5000);
+      }
+    });
+  }
+
+  removerImagem(imagem: any) {
+    if (confirm('Deseja remover esta imagem?')) {
+      this.carrosselImagem
+        .deletarImagem(imagem.id)
+        .subscribe(() => this.listarImagens());
+    }
+  }
+
+  anteriorImagem() {
+    if (this.imagens.length > 0) {
+      this.indiceImagemAtual =
+        (this.indiceImagemAtual - 1 + this.imagens.length) %
+        this.imagens.length;
+      this.imagemAtual = this.imagens[this.indiceImagemAtual];
+    }
+  }
+
+  proximaImagem() {
+    if (this.imagens.length > 0) {
+      this.indiceImagemAtual =
+        (this.indiceImagemAtual + 1) % this.imagens.length;
+      this.imagemAtual = this.imagens[this.indiceImagemAtual];
+    }
+  }
+
+  // ============= SESSÂO BARBEIROS =============
+  carregarBarbeiros() {
+    this.barbeiroService.listar().subscribe((res) => (this.barbeiros = res));
+  }
+
+  resetarFormularioBarbeiro(): Barbeiro {
+    return {
+      nome: '',
+      instagram: '',
+      telefone: '',
+      linkAgendamento: '',
+      imagemUrl: '',
+    };
+  }
+
+  formatarWhatsapp(telefone: string): string {
+    const apenasNumeros = telefone.replace(/\D/g, '');
+    return `https://wa.me/55${apenasNumeros}`;
+  }
+
+  onImagemSelecionada(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagemPreview = reader.result as string;
+        this.novoBarbeiro.imagemUrl = this.imagemPreview;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  toggleFormularioBarbeiro() {
+    this.mostrarFormularioBarbeiro = !this.mostrarFormularioBarbeiro;
+  }
+
+  fecharFormularioBarbeiro() {
+    this.mostrarFormularioBarbeiro = false;
+  }
+
+  salvar() {
+    if (this.editarBarbeiro && this.editandoId !== null) {
+      this.barbeiroService
+        .atualizar(this.editandoId, this.novoBarbeiro)
+        .subscribe(() => {
+          this.editarBarbeiro = false;
+          this.editandoId = null;
+          this.novoBarbeiro = this.resetarFormularioBarbeiro();
+          this.carregarBarbeiros();
+          this.mostrarFormularioBarbeiro = false; // fecha popup ao salvar
+        });
+    } else {
+      this.barbeiroService.criar(this.novoBarbeiro).subscribe(() => {
+        this.novoBarbeiro = this.resetarFormularioBarbeiro();
+        this.carregarBarbeiros();
+        this.mostrarFormularioBarbeiro = false; // fecha popup ao salvar
+      });
+    }
+  }
+
+  editar(barbeiro: Barbeiro) {
+    this.novoBarbeiro = { ...barbeiro };
+    this.editarBarbeiro = true;
+    this.editandoId = barbeiro.id!;
+    this.mostrarFormularioBarbeiro = true; // Abre o formulário para editar
+  }
+
+  cancelar() {
+    this.novoBarbeiro = this.resetarFormularioBarbeiro();
+    this.editarBarbeiro = false;
+    this.editandoId = null;
+  }
+
+  deletar(id: number) {
+    if (confirm('Deseja realmente remover este barbeiro?')) {
+      this.barbeiroService
+        .deletar(id)
+        .subscribe(() => this.carregarBarbeiros());
+    }
+  }
+  // ======= CARDS ========
+  listarCards() {
+    this.cardService.listar().subscribe((res) => {
+      const host = window.location.hostname;
+      const port = 8080;
+
+      this.cards = res.map((c) => ({
+        ...c,
+        imagemPath: c.imagemPath || 'assets/imagem-nao-encontrada.png',
+      }));
+
+      const largura = window.innerWidth;
+      const quantidade = largura <= 768 ? 4 : 5;
+
+      this.cardsVisiveis = this.cards.slice(0, quantidade);
+      this.proximoIndexCard = quantidade % this.cards.length;
+
+      this.iniciarCarrosselCards(quantidade);
+    });
+  }
+
+  iniciarCarrosselCards(quantidadeVisivel: number) {
+    if (this.intervaloCarrosselCards)
+      clearInterval(this.intervaloCarrosselCards);
+
+    if (this.cards.length <= quantidadeVisivel) {
+      this.cardsVisiveis = [...this.cards];
+      return;
+    }
+
+    this.intervaloCarrosselCards = setInterval(() => {
+      const novosCards: Card[] = [];
+
+      for (let i = 0; i < quantidadeVisivel; i++) {
+        const index = (this.proximoIndexCard + i) % this.cards.length;
+        novosCards.push(this.cards[index]);
+      }
+
+      this.cardsVisiveis = novosCards;
+      this.proximoIndexCard = (this.proximoIndexCard + 1) % this.cards.length;
+    }, 5000);
+  }
+
+  abrirFormularioCard(card?: Card) {
+    if (card) {
+      this.cardEditando = { ...card };
+      this.novoCardDescricao = card.descricao;
+      this.novoCardImagem = null; // mantém imagem antiga até trocar
+    } else {
+      this.cardEditando = null;
+      this.novoCardDescricao = '';
+      this.novoCardImagem = null;
+    }
+    this.mostrarFormularioCard = true;
+  }
+
+  cancelarFormularioCard() {
+    this.mostrarFormularioCard = false;
+    this.novoCardDescricao = '';
+    this.novoCardImagem = null;
+    this.cardEditando = null;
+  }
+
+  onFileChangeCard(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.novoCardImagem = file;
     }
   }
 
   salvarCard() {
-    if (this.cardForm.invalid) return;
+    if (this.cardEditando) {
+      // Atualizar card
+      this.cardService
+        .atualizar(
+          this.cardEditando.id!,
+          this.novoCardDescricao,
+          this.novoCardImagem ?? undefined // aqui a correção
+        )
 
-    const formData = new FormData();
-    formData.append('titulo', this.cardForm.value.titulo);
-    formData.append('descricao', this.cardForm.value.descricao);
-    formData.append('imagem', this.cardForm.value.imagemFile);
+        .subscribe(() => {
+          this.listarCards();
+          this.cancelarFormularioCard();
+        });
+    } else {
+      // Criar novo card
+      if (!this.novoCardImagem) {
+        alert('Selecione uma imagem para o novo card.');
+        return;
+      }
 
-    const request =
-      this.isEditandoCard && this.editandoCardId !== null
-        ? this.http.put(
-            `http://localhost:8080/api/cards/${this.editandoCardId}`,
-            formData
-          )
-        : this.http.post('http://localhost:8080/api/cards', formData);
-
-    request.subscribe({
-      next: () => {
-        this.resetarCardForm();
-        this.carregarCards();
-      },
-      error: (err) => console.error('Erro ao salvar card:', err),
-    });
-  }
-
-  editarCard(card: Card) {
-    this.cardForm.patchValue({
-      titulo: card.titulo,
-      descricao: card.descricao,
-      imagemFile: null,
-    });
-    this.imagePreview = card.imagemUrl;
-    this.editandoCardId = card.id!;
-    this.isEditandoCard = true;
-    this.showCardForm = true;
-  }
-
-  editarCardPorId() {
-    if (this.editCardForm.invalid) return;
-
-    const formData = new FormData();
-    formData.append('titulo', this.editCardForm.value.titulo);
-    formData.append('descricao', this.editCardForm.value.descricao);
-    if (this.editCardForm.value.imagemFile)
-      formData.append('imagem', this.editCardForm.value.imagemFile);
-
-    const id = this.editCardForm.value.id;
-    this.http.put(`http://localhost:8080/api/cards/${id}`, formData).subscribe({
-      next: () => {
-        this.resetarEditCardForm();
-        this.carregarCards();
-      },
-      error: (err) => console.error('Erro ao editar card por ID:', err),
-    });
+      this.cardService
+        .criar(this.novoCardDescricao, this.novoCardImagem ?? undefined)
+        .subscribe(() => {
+          this.listarCards();
+          this.cancelarFormularioCard();
+        });
+    }
   }
 
   deletarCard(id: number) {
-    this.http.delete(`http://localhost:8080/api/cards/${id}`).subscribe({
-      next: () => this.carregarCards(),
-      error: (err) => console.error('Erro ao deletar card:', err),
-    });
-  }
-
-  resetarCardForm() {
-    this.cardForm.reset();
-    this.imagePreview = null;
-    this.isEditandoCard = false;
-    this.editandoCardId = null;
-    this.showCardForm = false;
-  }
-
-  resetarEditCardForm() {
-    this.editCardForm.reset();
-    this.editImagePreview = null;
-    this.showEditByIdForm = false;
-  }
-
-  toggleCardForm() {
-    this.showCardForm = !this.showCardForm;
-    if (this.showCardForm) {
-      this.resetarEditCardForm();
-      this.showEditByIdForm = false;
+    if (confirm('Deseja remover este card?')) {
+      this.cardService.deletar(id).subscribe(() => this.listarCards());
     }
-    if (!this.showCardForm) this.resetarCardForm();
-  }
-
-  toggleEditByIdForm() {
-    this.showEditByIdForm = !this.showEditByIdForm;
-    if (this.showEditByIdForm) {
-      this.resetarCardForm();
-      this.showCardForm = false;
-    }
-    if (!this.showEditByIdForm) this.resetarEditCardForm();
-  }
-
-  // Serviços
-  carregarServicos(): void {
-    this.http
-      .get<Tabela[]>('http://localhost:8080/api/tabelaservicos')
-      .subscribe((data) => {
-        this.precos = data;
-        this.paginar();
-      });
-  }
-
-  salvarServico(): void {
-    if (this.servicoForm.invalid) return;
-
-    const servico = this.servicoForm.value;
-    const request =
-      this.isEditando && this.servicoEditandoId
-        ? this.http.put(
-            `http://localhost:8080/api/tabelaservicos/${this.servicoEditandoId}`,
-            servico
-          )
-        : this.http.post('http://localhost:8080/api/tabelaservicos', servico);
-
-    request.subscribe({
-      next: () => {
-        this.carregarServicos();
-        this.toggleServicoForm();
-      },
-      error: (err) => console.error('Erro ao salvar serviço:', err),
-    });
-  }
-
-  editarServico(servico: Tabela): void {
-    this.servicoForm.patchValue({
-      nome: servico.nome,
-      preco: servico.preco,
-    });
-    this.servicoEditandoId = servico.id || null;
-    this.isEditando = true;
-    this.showServicoForm = true;
-  }
-
-  deletarServico(id?: number) {
-    if (!id) return;
-    this.http
-      .delete(`http://localhost:8080/api/tabelaservicos/${id}`)
-      .subscribe({
-        next: () => this.carregarServicos(),
-        error: (err) => console.error('Erro ao deletar serviço:', err),
-      });
-  }
-
-  toggleServicoForm() {
-    this.showServicoForm = !this.showServicoForm;
-    if (!this.showServicoForm) this.servicoForm.reset();
-    this.isEditando = false;
-    this.servicoEditandoId = null;
-  }
-
-  trocarPagina(pagina: number): void {
-    this.paginaAtual = pagina;
-    this.paginar();
-  }
-
-  private paginar(): void {
-    const metade = Math.ceil(this.precos.length / 2);
-    this.precosPagina1 = this.precos.slice(0, metade);
-    this.precosPagina2 = this.precos.slice(metade);
-  }
-
-  openGoogleMaps(): void {
-    window.open(
-      'https://www.google.com/maps/dir//Studio+Money+Barber...',
-      '_blank'
-    );
   }
 }
