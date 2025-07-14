@@ -153,7 +153,9 @@
     </div>
 </nav>
 
+<!-- CONTAINER DE SERVIÇOS E HORÁRIOS -->
 <div class="agendamento-container">
+    <!-- LADO ESQUERDO: SERVIÇOS -->
     <div class="servicos-box">
         <h3>Selecione os Serviços:</h3>
         <div class="servicos-lista">
@@ -170,32 +172,115 @@
                     '1.2-2' }}</span>
             </div>
         </div>
-
     </div>
 
+    <!-- LADO DIREITO: HORÁRIOS -->
+    <div class="horarios-box">
+        <h3>Horários Disponíveis:</h3>
+
+        <!-- FORMULÁRIO DE HORÁRIO -->
+        <form (ngSubmit)="salvarHorario()"
+            style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <input
+                type="time"
+                [(ngModel)]="novoHorario.hora"
+                name="hora"
+                class="form-control"
+                required
+                style="padding: 5px; font-size: 14px;" />
+            <button type="submit" class="btn-salvar">
+                {{ editandoHorario ? 'Atualizar' : 'Adicionar' }}
+            </button>
+            <button type="button" *ngIf="editandoHorario"
+                (click)="resetarFormularioHorario()" class="btn-cancelar">
+                Cancelar
+            </button>
+        </form>
+
+        <!-- LISTA DE HORÁRIOS -->
+        <div class="horarios-lista">
+            <div *ngIf="horarios.length === 0" style="color: gray">Nenhum
+                horário cadastrado.</div>
+
+            <ul *ngIf="horarios.length > 0"
+                style="list-style: none; padding-left: 0">
+                <li *ngFor="let h of horarios" style="margin-bottom: 0.5rem">
+                    <strong>{{ h.hora }}</strong> –
+                    <span [style.color]="h.bloqueado ? 'red' : 'green'">
+                        {{ h.bloqueado ? 'Bloqueado' : 'Disponível' }}
+                    </span>
+
+                    <!-- Botões -->
+                    <div
+                        style="display: inline-flex; gap: 6px; margin-left: 10px">
+                        <button (click)="editarHorario(h)"
+                            class="btn-editar">Editar</button>
+                        <button (click)="deletarHorario(h.id!)"
+                            class="btn-remover">Remover</button>
+                        <button (click)="alternarBloqueioHorario(h)"
+                            class="btn-bloquear">
+                            {{ h.bloqueado ? 'Desbloquear' : 'Bloquear' }}
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div> <!-- Fecha a agendamento-container aqui! -->
+
+<!-- ✅ RESUMO DO AGENDAMENTO - Fora da .agendamento-container -->
+<div class="resumo-agendamento">
     <div class="informacoes-box">
         <h3>Resumo do Agendamento</h3>
-        <div>
-            Cupom de Desconto
-            <input type="text" placeholder="Digite seu cupom" />
+
+        <!-- Nome do barbeiro (somente leitura) -->
+        <div class="resumo-item">
+            <strong>Barbeiro Selecionado:</strong>
+            <span>{{ barbeiroSelecionado?.nome || 'Nenhum selecionado' }}</span>
         </div>
-        <div><strong>Valor Total:</strong> R$ 0.00</div>
-        <div><strong>Valor Final:</strong> R$ 0.00</div>
-        <div>
-            <label for="barbeiro">Selecionar Barbeiro</label>
-            <select id="barbeiro">
-                <option value>Selecione</option>
-                <!-- opções de barbeiros -->
+
+        <!-- Cupom Dropdown -->
+        <div class="resumo-item">
+            <label for="cupom"><strong>Aplicar Cupom:</strong></label>
+            <select id="cupom" [(ngModel)]="cupomSelecionadoId"
+                (change)="onCupomChange()">
+                <option [value]="''">Nenhum</option>
+                <option *ngFor="let c of cuponsDisponiveis" [value]="c.id">
+                    {{ c.nome }} - {{ c.desconto }}%
+                </option>
             </select>
         </div>
-        <button class="confirmar-btn">Confirmar Agendamento</button>
+
+        <!-- Valores -->
+        <div class="resumo-item">
+            <strong>Valor Total:</strong> R$ {{ valorTotal | number: '1.2-2' }}
+        </div>
+
+        <div class="resumo-item">
+            <strong>Desconto:</strong>
+            <span *ngIf="descontoAplicado > 0">- R$ {{ descontoAplicado |
+                number: '1.2-2' }}</span>
+            <span *ngIf="descontoAplicado === 0">R$ 0.00</span>
+        </div>
+
+        <div class="resumo-item">
+            <strong>Valor Final:</strong>
+            <span style="color: #f46d25; font-weight: bold">
+                R$ {{ valorFinal | number: '1.2-2' }}
+            </span>
+        </div>
+
+        <!-- Botão de confirmação -->
+        <button class="confirmar-btn" (click)="confirmarAgendamento()">Confirmar
+            Agendamento</button>
     </div>
 </div>
 
 <!-- BARRA INFERIOR MOBILE -->
 <nav class="bottom-nav">
     <a routerLink="/dashteste" class="nav-item">
-        <img src="assets/inicio.png" alt="Início" width="38px" height="32px" />
+        <img src="assets/inicio.png" alt="Início" width="38px"
+            height="32px" />
         <span>Início</span>
     </a>
     <a routerLink="/galeria" class="nav-item">

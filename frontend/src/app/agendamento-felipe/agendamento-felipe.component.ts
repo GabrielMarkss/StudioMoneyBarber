@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../service/usuario.service';
 import { NotificacaoService } from '../service/notificacao.service';
 import { ServicoService } from '../service/servico.service';
+import { HorarioService } from '../service/horario.service';
+
 import { Notificacao } from '../models/Notificacao.model';
 import { Servico } from '../models/servico.model';
+import { Horario } from '../models/horario.model';
+
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -34,15 +38,31 @@ export class AgendamentoFelipeComponent implements OnInit {
   // ===== Agendamento =====
   servicos: Servico[] = [];
   servicosSelecionados: number[] = [];
-  cupom: string = '';
-  barbeiroSelecionado: string = '';
-  barbeiros: string[] = ['João', 'Pedro', 'Lucas']; // Simulado
+  barbeiros: string[] = ['João', 'Pedro', 'Lucas'];
+  barbeiroSelecionado: any = null;
+
+  cuponsDisponiveis = [
+    { id: 1, nome: 'Fidelidade10', desconto: 10 },
+    { id: 2, nome: 'Desconto20', desconto: 20 }
+  ];
+  cupomSelecionadoId: string = '';
+
+  valorTotal: number = 0.00;
+  descontoAplicado: number = 0.00;
+  valorFinal: number = 0.00;
+
   agendamentoForm!: FormGroup;
+
+  // ===== Horários =====
+  horarios: Horario[] = [];
+  novoHorario: Horario = { hora: '', bloqueado: false };
+  editandoHorario: Horario | null = null;
 
   constructor(
     public usuarioService: UsuarioService,
     private notificacaoService: NotificacaoService,
     private servicoService: ServicoService,
+    private horarioService: HorarioService,
     private fb: FormBuilder
   ) { }
 
@@ -61,12 +81,12 @@ export class AgendamentoFelipeComponent implements OnInit {
 
     this.listarNotificacoes();
     this.carregarServicos();
+    this.carregarHorarios();
 
     this.agendamentoForm = this.fb.group({});
   }
 
   // ===== Notificações =====
-
   abrirMenu() {
     clearTimeout(this.menuTimeout);
     this.menuAberto = true;
@@ -107,7 +127,6 @@ export class AgendamentoFelipeComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.imagemSelecionada = file;
-
       const reader = new FileReader();
       reader.onload = () => {
         this.nova.imagemUrl = reader.result as string;
@@ -121,13 +140,11 @@ export class AgendamentoFelipeComponent implements OnInit {
       this.notificacaoService
         .atualizar(this.nova.id, this.nova)
         .subscribe(() => {
-          console.log('Notificação atualizada');
           this.cancelarFormulario();
           this.listarNotificacoes();
         });
     } else {
       this.notificacaoService.criar(this.nova).subscribe(() => {
-        console.log('Notificação criada');
         this.cancelarFormulario();
         this.listarNotificacoes();
       });
@@ -144,8 +161,7 @@ export class AgendamentoFelipeComponent implements OnInit {
     const confirmar = confirm('Você deseja remover esta notificação?');
     if (!confirmar) return;
 
-    const isAdmin = this.usuarioService.usuarioEhAdmin(); // crie esse método se necessário
-
+    const isAdmin = this.usuarioService.usuarioEhAdmin();
     this.notificacaoService.deletar(notificacao.id!, true, isAdmin).subscribe({
       next: () => this.listarNotificacoes(),
       error: (err) => alert(err.error || 'Erro ao remover notificação'),
@@ -157,8 +173,7 @@ export class AgendamentoFelipeComponent implements OnInit {
     this.mostrarFormulario = true;
   }
 
-  // ===== Serviços e Agendamento =====
-
+  // ===== Serviços =====
   carregarServicos() {
     this.servicoService.listar().subscribe(servicos => {
       this.servicos = servicos;
@@ -174,35 +189,75 @@ export class AgendamentoFelipeComponent implements OnInit {
     } else {
       this.servicosSelecionados = this.servicosSelecionados.filter(s => s !== id);
     }
+
+    this.atualizarValores();
   }
 
-  calcularTotal(): number {
-    return this.servicos
+  onCupomChange() {
+    this.atualizarValores();
+  }
+
+  atualizarValores() {
+    this.valorTotal = this.servicos
       .filter(s => this.servicosSelecionados.includes(s.id!))
       .reduce((total, s) => total + (s.preco || 0), 0);
-  }
 
-  cupomValido(): boolean {
-    return this.cupom.trim().toLowerCase() === 'desconto10';
-  }
-
-  calcularDesconto(): number {
-    return this.cupomValido() ? this.calcularTotal() * 0.1 : 0;
-  }
-
-  calcularValorFinal(): number {
-    return this.calcularTotal() - this.calcularDesconto();
+    const cupom = this.cuponsDisponiveis.find(c => c.id === Number(this.cupomSelecionadoId));
+    this.descontoAplicado = cupom ? (this.valorTotal * cupom.desconto) / 100 : 0;
+    this.valorFinal = this.valorTotal - this.descontoAplicado;
   }
 
   confirmarAgendamento() {
     const agendamento = {
       servicosSelecionados: this.servicosSelecionados,
       barbeiro: this.barbeiroSelecionado,
-      cupom: this.cupom,
-      valorFinal: this.calcularValorFinal()
+      cupomId: this.cupomSelecionadoId,
+      valorTotal: this.valorTotal,
+      desconto: this.descontoAplicado,
+      valorFinal: this.valorFinal,
     };
 
     console.log('Agendamento confirmado:', agendamento);
     alert('Agendamento confirmado com sucesso!');
+  }
+
+  // ===== Horários =====
+  carregarHorarios() {
+    this.horarioService.listar().subscribe(data => this.horarios = data);
+  }
+
+  salvarHorario() {
+    if (this.editandoHorario) {
+      this.horarioService.editar(this.editandoHorario.id!, this.novoHorario).subscribe(() => {
+        this.resetarFormularioHorario();
+        this.carregarHorarios();
+      });
+    } else {
+      this.horarioService.criar(this.novoHorario).subscribe(() => {
+        this.resetarFormularioHorario();
+        this.carregarHorarios();
+      });
+    }
+  }
+
+  editarHorario(h: Horario) {
+    this.editandoHorario = h;
+    this.novoHorario = { ...h };
+  }
+
+  deletarHorario(id: number) {
+    if (confirm('Deseja remover este horário?')) {
+      this.horarioService.deletar(id).subscribe(() => this.carregarHorarios());
+    }
+  }
+
+  alternarBloqueioHorario(horario: Horario) {
+    const acao = horario.bloqueado ? this.horarioService.desbloquear : this.horarioService.bloquear;
+    acao.call(this.horarioService, horario.id!).subscribe(() => this.carregarHorarios());
+  }
+
+  resetarFormularioHorario() {
+    this.novoHorario = { hora: '', bloqueado: false };
+    this.editandoHorario = null;
   }
 }
