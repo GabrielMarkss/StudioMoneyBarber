@@ -82,6 +82,7 @@
   position: relative;
   border: none;
 }
+
 .notificacao-card:hover {
   background-color: #eee;
   border-radius: 6px;
@@ -379,12 +380,14 @@
   align-items: flex-start;
   max-width: 450px;
   border-radius: 12px;
+  text-align: center;
 }
 
 /* ====== BOTÃO REMOVER (X) ====== */
 .btn-remover-x {
   position: absolute;
-  top: 1.2rem; /* alinhado com o nome */
+  top: 1.2rem;
+  /* alinhado com o nome */
   right: 10px;
   background: transparent;
   color: #888;
@@ -753,15 +756,12 @@
   gap: 10px;
 }
 
-/* ====== PLANO DE FIDELIDADE ====== */
 .fidelidade-box {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 20px;
   background-color: white;
   padding: 40px;
-  border-radius: 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   margin-top: 40px;
   width: 100vw;
@@ -802,13 +802,18 @@
 }
 
 .planos {
+  display: inline-block;
+  /* muito importante! resolve tooltips não aparecendo :contentReference[oaicite:1]{index=1} */
+  position: relative;
   cursor: pointer;
 }
 
-.planos:hover {
-  text-decoration: underline;
+.separador {
+  margin: 0 8px;
+  color: #aaa;
 }
 
+/* BOTÃO */
 .fidelidade-botao {
   margin-top: 12px;
   background-color: #f3741c;
@@ -821,6 +826,50 @@
   font-size: 18px;
   align-self: flex-start;
 }
+
+/* TOOLTIPS */
+
+/* Conteúdo do balão */
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 100;
+}
+
+/* Setinha */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  top: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 99;
+}
+
+/* Exibe no hover */
+.tooltip:hover::after,
+.tooltip:hover::before {
+  opacity: 1;
+}
+
 
 /* ====== CARDS ====== */
 .cards-wrapper {
@@ -938,6 +987,7 @@
   height: 400px;
   overflow: hidden;
   border-radius: 0;
+  margin-top: 20px;
 }
 
 .mapa-container iframe {
@@ -1139,7 +1189,7 @@
 
   .imagem-wrapper {
     width: 100vw !important;
-    height: 300px !important;
+    height: 200px !important;
     background-color: #000;
     overflow: hidden;
     position: relative;
@@ -1147,53 +1197,63 @@
 
   .carrossel-img {
     width: 100%;
-    height: 300px;
+    height: 200px;
     object-fit: cover;
     object-position: center;
     border-radius: 0;
     display: block;
   }
 
-  .barbeiros-wrapper {
+  .barbeiro-card {
     flex-direction: column;
     align-items: center;
+    text-align: center;
+    padding: 1rem;
+    max-width: 100%;
   }
 
-  .barbeiro-img {
-    width: 160px;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin: 0 auto 10px;
+  .imagem-container {
+    margin: 0 auto 1rem;
   }
 
   .barbeiro-info {
+    padding: 0;
     text-align: center;
-    padding: 0 10px;
   }
 
   .barbeiro-info h3 {
-    font-size: 22px;
-    margin: 6px 0 4px;
+    font-size: 20px;
+    margin: -0.7rem 0 -0.3rem;
   }
 
   .barbeiro-info p {
     font-size: 15px;
     margin: 2px 0;
+    line-height: 1.2;
+    width: 200PX;
   }
 
   .contato {
-    font-size: 16px;
-    color: #28a745;
-    font-weight: bold;
-  }
-
-  .agendar-link {
     display: block;
     font-size: 16px;
     font-weight: bold;
+    color: #28a745;
+    margin: 4px 0;
+  }
+
+  .agendar-link {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 16px;
     text-decoration: underline;
+    color: black;
     margin-top: 4px;
+  }
+
+  .btn-remover-x {
+    top: 0.6rem;
+    right: 0.6rem;
+    font-size: 18px;
   }
 
   .layout-servicos {
@@ -1380,7 +1440,7 @@
   }
 
   .fidelidade-planos {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .fidelidade-botao {
@@ -1388,6 +1448,7 @@
     padding: 8px 36px;
     align-self: center;
   }
+
 
   .mapa-container {
     height: 220px;

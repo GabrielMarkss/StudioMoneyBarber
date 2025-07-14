@@ -7,6 +7,7 @@ import { Notificacao } from '../models/Notificacao.model';
 import { Servico } from '../models/servico.model';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { GoogleMapsModule } from '@angular/google-maps';
 import { FormsModule } from '@angular/forms';
 import { CardService } from '../service/card.service';
 import { Card } from '../models/card-servico.model';
@@ -19,7 +20,7 @@ import { BarbeiroService } from '../service/barbeiro.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, RouterModule, GoogleMapsModule, FormsModule, HttpClientModule],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   menuAberto = false;
@@ -73,6 +74,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   proximoIndexCard = 0;
   intervaloCarrosselCards: any;
 
+
   constructor(
     public usuarioService: UsuarioService,
     private router: Router,
@@ -82,7 +84,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private cardService: CardService,
     private http: HttpClient,
     private barbeiroService: BarbeiroService // 👈 adicionado aqui
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const data = new Date();
@@ -109,9 +111,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'nov',
       'dez',
     ];
-    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${
-      meses[data.getMonth()]
-    } ${data.getFullYear()}`;
+    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${meses[data.getMonth()]
+      } ${data.getFullYear()}`;
 
     if (this.usuarioService.isLoggedIn()) {
       this.usuarioService.getUsuarioLogado().subscribe({
@@ -138,6 +139,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.intervaloCarrosselCards)
       clearInterval(this.intervaloCarrosselCards);
   }
+
+  irParaSecao(id: string) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+      elemento.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
 
   abrirMenu() {
     clearTimeout(this.menuTimeout);
@@ -449,16 +458,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // ======= CARDS ========
   listarCards() {
     this.cardService.listar().subscribe((res) => {
-      const host = window.location.hostname;
-      const port = 8080;
+      const largura = window.innerWidth;
+      const quantidade = largura <= 768 ? 4 : 5;
 
       this.cards = res.map((c) => ({
         ...c,
-        imagemPath: c.imagemPath || 'assets/imagem-nao-encontrada.png',
+        imagemPath: c.imagemBase64 || 'assets/imagem-nao-encontrada.png',
       }));
-
-      const largura = window.innerWidth;
-      const quantidade = largura <= 768 ? 4 : 5;
 
       this.cardsVisiveis = this.cards.slice(0, quantidade);
       this.proximoIndexCard = quantidade % this.cards.length;
@@ -466,6 +472,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.iniciarCarrosselCards(quantidade);
     });
   }
+
 
   iniciarCarrosselCards(quantidadeVisivel: number) {
     if (this.intervaloCarrosselCards)

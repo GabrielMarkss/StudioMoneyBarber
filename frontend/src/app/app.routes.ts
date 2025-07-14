@@ -6,6 +6,8 @@ import { GaleriaComponent } from './galeria/galeria.component';
 import { AgendamentoComponent } from './agendamento/agendamento.component';
 import { ProdutosComponent } from './produtos/produtos.component';
 import { HomeComponent } from './home/home.component';
+import { AgendamentoFelipeComponent } from './agendamento-felipe/agendamento-felipe.component';
+import { AgendamentoEzequielComponent } from './agendamento-ezequiel/agendamento-ezequiel.component';
 
 export const appRoutes: Routes = [
   {
@@ -29,6 +31,14 @@ export const appRoutes: Routes = [
   {
     path: 'agendamentos',
     component: AgendamentoComponent,
+  },
+  {
+    path: 'felipe',
+    component: AgendamentoFelipeComponent,
+  },
+  {
+    path: 'ezequiel',
+    component: AgendamentoEzequielComponent,
   },
   {
     path: 'produtos',

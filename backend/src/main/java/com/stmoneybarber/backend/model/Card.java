@@ -10,8 +10,9 @@ public class Card {
 
     private String descricao;
 
+    @Lob
     @Column(columnDefinition = "TEXT")
-    private String imagemPath;
+    private String imagemBase64;
 
     public Long getId() {
         return id;
@@ -29,11 +30,11 @@ public class Card {
         this.descricao = descricao;
     }
 
-    public String getImagemPath() {
-        return imagemPath;
+    public String getImagemBase64() {
+        return imagemBase64;
     }
 
-    public void setImagemPath(String imagemPath) {
-        this.imagemPath = imagemPath;
+    public void setImagemBase64(String imagemBase64) {
+        this.imagemBase64 = imagemBase64;
     }
 }

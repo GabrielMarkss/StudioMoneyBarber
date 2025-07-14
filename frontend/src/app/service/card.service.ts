@@ -6,13 +6,12 @@ import { UsuarioService } from './usuario.service';
 
 @Injectable({ providedIn: 'root' })
 export class CardService {
-  // private apiUrl = 'http://192.168.100.183:8080/api/cards';
-  private apiUrl = 'http://localhost:8080/api/cards';
+    private apiUrl = `http://${window.location.hostname}:8080/api/cards`;
 
   constructor(
     private http: HttpClient,
     private usuarioService: UsuarioService
-  ) {}
+  ) { }
 
   listar(): Observable<Card[]> {
     return this.http.get<Card[]>(this.apiUrl);

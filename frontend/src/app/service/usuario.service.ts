@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  // private api = 'http://192.168.100.183:8080/api/usuarios';
-  private api = 'http://localhost:8080/api/usuarios';
+  private apiUrl = `http://${window.location.hostname}:8080/api/usuarios`;
+
 
   nomeUsuario: string = '';
   private usuarioLogado: {
@@ -15,14 +15,14 @@ export class UsuarioService {
     admin: boolean;
   } | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   login(payload: {
     identificador: string;
     senha: string;
     permanecerConectado: boolean;
   }): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(`${this.api}/login`, payload).pipe(
+    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, payload).pipe(
       tap((response) => {
         const token = response.token;
 
@@ -51,7 +51,7 @@ export class UsuarioService {
   }
 
   register(usuario: any): Observable<string> {
-    return this.http.post(`${this.api}/register`, usuario, {
+    return this.http.post(`${this.apiUrl}/register`, usuario, {
       responseType: 'text',
     });
   }
@@ -75,7 +75,7 @@ export class UsuarioService {
     if (!token) return of({ nome: '', email: '', admin: false });
 
     return this.http
-      .get<{ nome: string; email: string; admin: boolean }>(`${this.api}/me`, {
+      .get<{ nome: string; email: string; admin: boolean }>(`${this.apiUrl}/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .pipe(

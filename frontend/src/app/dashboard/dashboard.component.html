@@ -1,13 +1,12 @@
 <!-- NAVBAR SUPERIOR -->
-<nav class="navbar">
+<nav class="navbar" id="navbar">
   <div class="left" style="display: flex; align-items: center">
     <img
       src="assets/user-profile.png"
       alt="Perfil"
       routerLink="/dashteste"
       class="profile-img"
-      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer"
-    />
+      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer" />
     <div class="greeting">
       <div>Olá, {{ usuarioService.nomeUsuario || "..." }}</div>
       <small>{{ dataHoje }}</small>
@@ -22,21 +21,18 @@
       gap: 0.5rem;
       padding-bottom: 0.25px;
       margin-top: 20px;
-    "
-  >
+    ">
     <!-- Ícone Notificação com pop-up -->
     <div
       class="notificacao-wrapper"
       (mouseenter)="abrirNotificacao()"
       (mouseleave)="fecharNotificacao()"
-      style="margin-right: 0.625rem"
-    >
+      style="margin-right: 0.625rem">
       <img
         src="assets/notificacao.png"
         alt="Notificações"
         class="notificacao"
-        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)"
-      />
+        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)" />
 
       <!-- Pop-up dinâmico -->
       <div class="notificacao-popup" *ngIf="mostrarNotificacoes">
@@ -45,8 +41,7 @@
             <img
               [src]="n.imagemUrl"
               alt="Imagem"
-              style="width: 100%; height: 100%"
-            />
+              style="width: 100%; height: 100%" />
           </div>
           <div class="notificacao-conteudo">
             <strong>{{ n.titulo }}</strong>
@@ -59,37 +54,32 @@
               align-items: center;
               gap: 0.3rem;
               margin-left: auto;
-            "
-          >
+            ">
             <span
               class="icone-acao editar notificacao"
               title="Editar notificação"
               style="font-size: 17px"
-              (click)="editarNotificacao(n)"
-              >✎</span
-            >
+              (click)="editarNotificacao(n)">✎</span>
 
             <span
               class="icone-acao apagar notificacao"
               title="Remover notificação"
               style="font-weight: bold"
-              (click)="confirmarRemocao(n)"
-              >✕</span
-            >
+              (click)="confirmarRemocao(n)">✕</span>
           </div>
         </div>
 
         <div
           class="nova-notificacao"
           *ngIf="usuarioService.usuarioEhAdmin()"
-          (click)="abrirFormularioNotificacao()"
-        >
+          (click)="abrirFormularioNotificacao()">
           + Nova notificação
         </div>
       </div>
 
       <!-- Formulário de criação (modal) -->
-      <div class="formulario-modal" *ngIf="mostrarFormulario">
+      <div class="formulario-modal"
+        *ngIf="mostrarFormulario && usuarioService.usuarioEhAdmin()">
         <h3 style="color: black; margin-top: 0">Nova Notificação</h3>
 
         <input
@@ -97,21 +87,18 @@
           [(ngModel)]="nova.titulo"
           class="form-control"
           placeholder="Título da notificação"
-          style="width: 100%"
-        />
+          style="width: 100%" />
         <textarea
           [(ngModel)]="nova.descricao"
           class="form-control"
           placeholder="Descrição da notificação"
           style="width: 100%; resize: none"
-          rows="3"
-        ></textarea>
+          rows="3"></textarea>
 
         <input
           style="color: black"
           type="file"
-          (change)="onFileChange($event)"
-        />
+          (change)="onFileChange($event)" />
 
         <div class="botoes-container">
           <button class="cancelar" (click)="cancelarFormulario()">
@@ -122,8 +109,7 @@
             (click)="salvarNotificacao()"
             [disabled]="
               !nova.titulo.trim() || !nova.descricao.trim() || !nova.imagemUrl
-            "
-          >
+            ">
             Salvar
           </button>
         </div>
@@ -134,8 +120,7 @@
     <div
       class="dropdown"
       (mouseenter)="abrirMenu()"
-      (mouseleave)="fecharMenu()"
-    >
+      (mouseleave)="fecharMenu()">
       <div class="dropdown-toggle">☰</div>
       <ul class="dropdown-menu" *ngIf="menuAberto">
         <li><a routerLink="/menu">Perfil</a></li>
@@ -155,8 +140,7 @@
       <button
         class="botao-navegacao esquerdo"
         *ngIf="imagens.length > 1"
-        (click)="anteriorImagem()"
-      >
+        (click)="anteriorImagem()">
         ‹
       </button>
 
@@ -180,8 +164,7 @@
       <button
         class="botao-navegacao direito"
         *ngIf="imagens.length > 1"
-        (click)="proximaImagem()"
-      >
+        (click)="proximaImagem()">
         ›
       </button>
     </div>
@@ -192,16 +175,14 @@
   <div class="carrossel-vazio">
     <p
       style="color: gray; text-align: center"
-      *ngIf="usuarioService.usuarioEhAdmin()"
-    >
+      *ngIf="usuarioService.usuarioEhAdmin()">
       Nenhuma imagem adicionada ainda.
     </p>
     <div style="display: flex; justify-content: center; margin-top: 10px">
       <button
         *ngIf="usuarioService.usuarioEhAdmin()"
         class="botao-central"
-        (click)="abrirFormularioImagem()"
-      >
+        (click)="abrirFormularioImagem()">
         ＋ Adicionar imagem
       </button>
     </div>
@@ -211,24 +192,21 @@
 <!-- Modal de formulário -->
 <div
   class="formulario-modal"
-  *ngIf="mostrarFormularioImagem"
-  style="z-index: 1000"
->
+  *ngIf="mostrarFormularioImagem && usuarioService.usuarioEhAdmin()"
+  style="z-index: 1000">
   <h3 style="color: black; margin-top: 0">Imagem do Carrossel</h3>
 
   <input
     type="file"
     accept="image/*"
     (change)="onFileChangeImagem($event)"
-    style="margin-bottom: 10px"
-  />
+    style="margin-bottom: 10px" />
 
   <div *ngIf="novaImagem.url" style="margin-bottom: 10px">
     <img
       [src]="novaImagem.url"
       alt="Preview da imagem"
-      style="max-width: 100%; max-height: 200px"
-    />
+      style="max-width: 100%; max-height: 200px" />
   </div>
 
   <div class="botoes-container">
@@ -238,8 +216,7 @@
     <button
       class="salvar"
       (click)="salvarImagem()"
-      [disabled]="!novaImagemArquivo"
-    >
+      [disabled]="!novaImagemArquivo">
       Salvar
     </button>
   </div>
@@ -248,54 +225,52 @@
 <section class="barbeiros-section">
   <h2 class="titulo">Barbeiros</h2>
 
-  <button class="btn-adicionar-barbeiro" (click)="toggleFormularioBarbeiro()">
+  <button
+    class="btn-adicionar-barbeiro"
+    *ngIf="usuarioService.usuarioEhAdmin()"
+    (click)="toggleFormularioBarbeiro()">
     Adicionar Barbeiro
   </button>
 
-  <div class="popup-form-barbeiro" *ngIf="mostrarFormularioBarbeiro">
+  <div class="popup-form-barbeiro"
+    *ngIf="mostrarFormularioBarbeiro && usuarioService.usuarioEhAdmin()">
     <form
       class="formulario-barbeiro"
       (ngSubmit)="salvar()"
-      enctype="multipart/form-data"
-    >
+      enctype="multipart/form-data">
       <input
         class="form-input-barbeiro"
         [(ngModel)]="novoBarbeiro.nome"
         name="nome"
         placeholder="Nome"
-        required
-      />
+        required />
       <input
         class="form-input-barbeiro"
         [(ngModel)]="novoBarbeiro.instagram"
         name="instagram"
         placeholder="@Instagram"
-        required
-      />
+        required />
       <input
         class="form-input-barbeiro"
         [(ngModel)]="novoBarbeiro.telefone"
         name="telefone"
         placeholder="Telefone"
-        required
-      />
+        required />
 
       <select
         class="form-input-barbeiro"
         [(ngModel)]="novoBarbeiro.linkAgendamento"
         name="linkAgendamento"
-        required
-      >
-        <option [ngValue]="'/produtos'">Página de Produtos</option>
-        <option [ngValue]="'/galeria'">Página de Galeria</option>
+        required>
+        <option [ngValue]="'/felipe'">Agendamento com Felipe</option>
+        <option [ngValue]="'/ezequiel'">Agendamento com Ezequiel</option>
         <option [ngValue]="'/agendamentos'">Página de Agendamentos</option>
       </select>
 
       <input
         type="file"
         accept="image/*"
-        (change)="onImagemSelecionada($event)"
-      />
+        (change)="onImagemSelecionada($event)" />
 
       <div class="botoes-form-barbearia">
         <button type="submit" class="btn-salvar-barbeiro">
@@ -304,8 +279,7 @@
         <button
           type="button"
           class="btn-cancelar-barbeiro"
-          (click)="fecharFormularioBarbeiro()"
-        >
+          (click)="fecharFormularioBarbeiro()">
           Cancelar
         </button>
       </div>
@@ -313,13 +287,15 @@
   </div>
 
   <!-- Lista de barbeiros -->
-  <div class="barbeiros-wrapper">
+  <div class="barbeiros-wrapper" id="barbeiros">
     <div class="barbeiro-card" *ngFor="let b of barbeiros">
-      <button class="btn-remover-x" (click)="deletar(b.id!)">✕</button>
+      <button class="btn-remover-x" *ngIf="usuarioService.usuarioEhAdmin()"
+        (click)="deletar(b.id!)">✕</button>
 
       <div class="imagem-container">
         <img [src]="b.imagemUrl" [alt]="b.nome" class="barbeiro-img" />
-        <button class="btn-editar-img" (click)="editar(b)">✎</button>
+        <button class="btn-editar-img" *ngIf="usuarioService.usuarioEhAdmin()"
+          (click)="editar(b)">✎</button>
       </div>
 
       <div class="barbeiro-info">
@@ -330,15 +306,14 @@
           <a
             class="contato"
             [href]="formatarWhatsapp(b.telefone)"
-            target="_blank"
-          >
+            target="_blank">
             {{ b.telefone }}
           </a>
         </p>
         <p>
           Você pode agendar com {{ b.nome }} pelo WhatsApp ou
-          <a class="agendar-link" [routerLink]="b.linkAgendamento">
-            Agende Online por aqui
+          <a class="agendar-link" [routerLink]="b.linkAgendamento">Agende
+            Online por aqui
           </a>
         </p>
       </div>
@@ -346,10 +321,8 @@
   </div>
 </section>
 
-<br /><br /><br />
-
-<div class="container-centralizado">
-  <div class="layout-servicos">
+<div class="container-centralizado" style="padding-top: 6.25rem;">
+  <div class="layout-servicos" id="servico">
     <!-- Imagem -->
     <div class="imagem-servicos">
       <img src="assets/cortecanvas.png" alt="Imagem" />
@@ -361,8 +334,7 @@
         <button
           *ngIf="usuarioService.usuarioEhAdmin()"
           (click)="abrirFormularioServico()"
-          class="botao-criar"
-        >
+          class="botao-criar">
           Criar serviço
         </button>
       </div>
@@ -380,8 +352,7 @@
                   class="icone-acao editar"
                   title="Editar servico"
                   style="font-size: 17px"
-                  (click)="abrirFormularioServico(servico)"
-                >
+                  (click)="abrirFormularioServico(servico)">
                   ✎
                 </button>
 
@@ -389,8 +360,7 @@
                   class="icone-acao apagar"
                   title="Remover servico"
                   style="font-weight: bold"
-                  (click)="deletarServico(servico.id!)"
-                >
+                  (click)="deletarServico(servico.id!)">
                   ✕
                 </button>
               </ng-container>
@@ -408,8 +378,7 @@
                 class="pagina"
                 [class.ativa]="paginaAtual === pagina"
                 *ngFor="let pagina of paginas"
-                (click)="irParaPagina(pagina)"
-              >
+                (click)="irParaPagina(pagina)">
                 {{ pagina }}
               </span>
             </div>
@@ -431,8 +400,7 @@
           name="nome"
           required
           class="form-control"
-          style="width: 100%; margin-bottom: 10px"
-        />
+          style="width: 100%; margin-bottom: 10px" />
 
         <label style="color: black; font-weight: bold">Preço</label>
         <input
@@ -441,8 +409,7 @@
           name="preco"
           required
           class="form-control"
-          style="width: 100%; margin-bottom: 15px"
-        />
+          style="width: 100%; margin-bottom: 15px" />
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem">
           <button
@@ -454,8 +421,7 @@
               padding: 8px 14px;
               border-radius: 6px;
               cursor: pointer;
-            "
-          >
+            ">
             Cancelar
           </button>
           <button
@@ -468,8 +434,7 @@
               padding: 8px 14px;
               border-radius: 6px;
               cursor: pointer;
-            "
-          >
+            ">
             Salvar
           </button>
         </div>
@@ -487,8 +452,7 @@
         <button
           class="apagar-card"
           style="font-weight: bold"
-          (click)="deletarCard(c.id!)"
-        >
+          (click)="deletarCard(c.id!)">
           ✕
         </button>
       </div>
@@ -512,16 +476,14 @@
       [(ngModel)]="novoCardDescricao"
       placeholder="Digite a descrição do card..."
       rows="4"
-      class="textarea-descricao"
-    ></textarea>
+      class="textarea-descricao"></textarea>
 
     <label for="imagem">Imagem:</label>
     <input
       id="imagem"
       type="file"
       (change)="onFileChangeCard($event)"
-      class="input-file"
-    />
+      class="input-file" />
 
     <div class="botoes-formulario-card">
       <button class="btn-cancelar" (click)="cancelarFormularioCard()">
@@ -530,15 +492,14 @@
       <button
         class="btn-salvar"
         (click)="salvarCard()"
-        [disabled]="!novoCardDescricao || (!novoCardImagem && !cardEditando)"
-      >
+        [disabled]="!novoCardDescricao || (!novoCardImagem && !cardEditando)">
         Salvar
       </button>
     </div>
   </div>
 
   <!-- PLANO DE FIDELIDADE -->
-  <div class="fidelidade-box">
+  <div class="fidelidade-box" id="planos">
     <img src="assets/fidelidade.png" alt="Plano" class="fidelidade-img" />
 
     <div class="fidelidade-conteudo">
@@ -549,9 +510,17 @@
       </p>
 
       <div class="fidelidade-planos">
-        <span class="planos">Plano Padrão</span>
-        <span style="margin: 0 8px">|</span>
-        <span class="planos">Plano Premium</span>
+        <span
+          class="planos tooltip"
+          data-tooltip="Inclui 2 cortes por mês com agendamento prioritário">
+          Plano Padrão
+        </span>
+        <span style="margin: 0 3px" class="separador">|</span>
+        <span
+          class="planos tooltip"
+          data-tooltip="Cortes ilimitados + barba e sobrancelha inclusos">
+          Plano Premium
+        </span>
       </div>
 
       <button routerLink="/fidelidade" class="fidelidade-botao">
@@ -559,114 +528,113 @@
       </button>
     </div>
   </div>
-</div>
-<div class="mapa-container">
-  <iframe
-    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3822.257878882561!2d-49.229727924858416!3d-16.663974044968104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935ef3059d42ca45%3A0x287fe03c189b0775!2sStudio%20Money%20Barber!5e0!3m2!1spt-BR!2sbr!4v1751644981020!5m2!1spt-BR!2sbr"
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
-  >
-  </iframe>
-</div>
-<br />
 
-<!-- RODAPÉ COMPLETO -->
-<!-- RODAPÉ -->
-<div class="rodape">
-  <div class="rodape-conteudo">
-    <!-- LOGO + TÍTULO + LINKS -->
-    <div class="rodape-coluna logo-coluna">
-      <div class="logo-wrapper">
-        <img src="assets/logo.png" alt="Logo" class="rodape-logo" />
-        <div class="logo-texto">
-          <span class="logo-titulo">Studio Money Barber</span>
-          <div class="rodape-links-internos">
-            <a href="#">Home</a>
-            <a href="#">Barbeiros</a>
-            <a href="#">Serviços</a>
-            <a href="#">Planos</a>
+  <div class="mapa-container">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3822.257878882561!2d-49.229727924858416!3d-16.663974044968104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f10!3m3!1m2!1s0x935ef3059d42ca45%3A0x287fe03c189b0775!2sStudio%20Money%20Barber!5e0!3m2!1spt-BR!2sbr!4v1751644981020!5m2!1spt-BR!2sbr"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+
+  <!-- RODAPÉ COMPLETO -->
+  <!-- RODAPÉ -->
+  <div class="rodape">
+    <div class="rodape-conteudo">
+      <!-- LOGO + TÍTULO + LINKS -->
+      <div class="rodape-coluna logo-coluna">
+        <div class="logo-wrapper">
+          <img src="assets/logo.png" alt="Logo" class="rodape-logo" />
+          <div class="logo-texto">
+            <span class="logo-titulo">Studio Money Barber</span>
+            <div class="rodape-links-internos">
+              <a href="#"
+                (click)="irParaSecao('navbar'); $event.preventDefault()">Home</a>
+              <a href="#"
+                (click)="irParaSecao('barbeiros'); $event.preventDefault()">Barbeiros</a>
+              <a href="#"
+                (click)="irParaSecao('servico'); $event.preventDefault()">Serviços</a>
+              <a href="#"
+                (click)="irParaSecao('planos'); $event.preventDefault()">Planos</a>
+
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- CONTATO -->
+      <div class="rodape-coluna">
+        <h4>Contato</h4>
+        <p>
+          <img
+            src="assets/whatsapp.png"
+            alt="WhatsApp do Felipe"
+            class="rede-social" />
+          (62) 99936-1327 / (62) 99114-5896
+        </p>
+        <p>
+          <img src="assets/gmail.png" alt="Email" class="rede-social" />
+          studiomoneybarber&#64;gmail.com
+        </p>
+      </div>
+
+      <!-- REDES SOCIAIS -->
+      <div class="rodape-coluna">
+        <h4>Redes Sociais</h4>
+        <p>
+          <img
+            src="assets/instagram.png"
+            alt="Instagram"
+            class="rede-social"
+            width="20px" />
+          <a
+            href="https://www.instagram.com/studio_money_barber/"
+            target="_blank">
+            Instagram</a>
+        </p>
+        <p>
+          <img
+            src="assets/facebook.png"
+            alt="Facebook"
+            class="rede-social"
+            width="20px" />
+          <a href="https://facebook.com" target="_blank"> Facebook</a>
+        </p>
+      </div>
     </div>
 
-    <!-- CONTATO -->
-    <div class="rodape-coluna">
-      <h4>Contato</h4>
-      <p>
-        <img
-          src="assets/whatsapp.png"
-          alt="WhatsApp do Felipe"
-          class="rede-social"
-        />
-        (62) 99936-1327 / (62) 99114-5896
-      </p>
-      <p>
-        <img src="assets/gmail.png" alt="Email" class="rede-social" />
-        studiomoneybarber&#64;gmail.com
-      </p>
-    </div>
-
-    <!-- REDES SOCIAIS -->
-    <div class="rodape-coluna">
-      <h4>Redes Sociais</h4>
-      <p>
-        <img
-          src="assets/instagram.png"
-          alt="Instagram"
-          class="rede-social"
-          width="20px"
-        />
-        <a
-          href="https://www.instagram.com/studio_money_barber/"
-          target="_blank"
-        >
-          Instagram</a
-        >
-      </p>
-      <p>
-        <img
-          src="assets/facebook.png"
-          alt="Facebook"
-          class="rede-social"
-          width="20px"
-        />
-        <a href="https://facebook.com" target="_blank"> Facebook</a>
-      </p>
+    <div class="rodape-direitos">
+      Copyright © 2025 Studio Money Barber. Todos os direitos reservados
     </div>
   </div>
 
-  <div class="rodape-direitos">
-    Copyright © 2025 Studio Money Barber. Todos os direitos reservados
+  <!-- BARRA INFERIOR MOBILE -->
+  <div class="bottom-nav">
+    <a routerLink="/dashboard" class="nav-item">
+      <img src="assets/home-ativa.png" alt="Início" width="38px"
+        height="32px" />
+      <span style="color: #f46d25; font-weight: bold">Início</span>
+    </a>
+    <a routerLink="/galeria" class="nav-item">
+      <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
+      <span>Galeria</span>
+    </a>
+    <a routerLink="/agendamentos" class="nav-item">
+      <img
+        src="assets/agendamento.png"
+        alt="Agendamentos"
+        width="34px"
+        height="34px" />
+      <span>Agendamentos</span>
+    </a>
+    <a routerLink="/produtos" class="nav-item">
+      <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
+      <span>Produtos</span>
+    </a>
+    <a routerLink="/menu" class="nav-item">
+      <img src="assets/user-profile.png" alt="Menu" width="40px"
+        height="40px" />
+      <span>Menu</span>
+    </a>
   </div>
-</div>
-
-<!-- BARRA INFERIOR MOBILE -->
-<div class="bottom-nav">
-  <a routerLink="/dashboard" class="nav-item">
-    <img src="assets/home-ativa.png" alt="Início" width="38px" height="32px" />
-    <span style="color: #f46d25; font-weight: bold">Início</span>
-  </a>
-  <a routerLink="/galeria" class="nav-item">
-    <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
-    <span>Galeria</span>
-  </a>
-  <a routerLink="/agendamentos" class="nav-item">
-    <img
-      src="assets/agendamento.png"
-      alt="Agendamentos"
-      width="34px"
-      height="34px"
-    />
-    <span>Agendamentos</span>
-  </a>
-  <a routerLink="/produtos" class="nav-item">
-    <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
-    <span>Produtos</span>
-  </a>
-  <a routerLink="/menu" class="nav-item">
-    <img src="assets/user-profile.png" alt="Menu" width="40px" height="40px" />
-    <span>Menu</span>
-  </a>
-</div>

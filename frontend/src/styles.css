@@ -3,6 +3,7 @@ body {
   height: 100%;
   background-color: #f1edec;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {

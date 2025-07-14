@@ -24,26 +24,20 @@ public class CardController {
         return repository.findAll();
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> criar(
-            @RequestParam("descricao") String descricao,
-            @RequestParam("imagem") MultipartFile imagem,
-            @RequestHeader("X-Admin") boolean isAdmin) throws IOException {
-
-        if (!isAdmin) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas administradores podem criar cards.");
-        }
+    @PostMapping
+    public ResponseEntity<Card> criarCard(
+            @RequestParam String descricao,
+            @RequestParam MultipartFile imagem) throws IOException {
+        Card card = new Card();
+        card.setDescricao(descricao);
 
         byte[] bytes = imagem.getBytes();
         String base64 = Base64.getEncoder().encodeToString(bytes);
-        String imagemBase64 = "data:" + imagem.getContentType() + ";base64," + base64;
+        String contentType = imagem.getContentType();
+        String dataUri = "data:" + contentType + ";base64," + base64;
 
-        Card card = new Card();
-        card.setDescricao(descricao);
-        card.setImagemPath(imagemBase64);
-        repository.save(card);
-
-        return ResponseEntity.ok(card);
+        card.setImagemBase64(dataUri);
+        return ResponseEntity.ok(repository.save(card));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -64,7 +58,7 @@ public class CardController {
                     byte[] bytes = imagem.getBytes();
                     String base64 = Base64.getEncoder().encodeToString(bytes);
                     String imagemBase64 = "data:" + imagem.getContentType() + ";base64," + base64;
-                    card.setImagemPath(imagemBase64);
+                    card.setImagemBase64(imagemBase64);
                 }
                 repository.save(card);
                 return ResponseEntity.ok(card);
@@ -86,5 +80,5 @@ public class CardController {
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    
+
 }
