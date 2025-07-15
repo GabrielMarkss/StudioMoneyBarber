@@ -1,5 +1,9 @@
 export interface Horario {
-    id?: number;
-    hora: string; // formato: "11:00"
-    bloqueado: boolean;
+  id?: number;
+  diaSemana: string; // Ex: "TERÇA", "QUARTA"
+  horario: string; // Ex: "08:00"
+  disponivel: boolean;
+  bloqueado: boolean;
+  motivoBloqueio?: string;
+  clienteNome?: string;
 }

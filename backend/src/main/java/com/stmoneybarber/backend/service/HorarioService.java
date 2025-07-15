@@ -5,6 +5,7 @@ import com.stmoneybarber.backend.repository.HorarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,35 +13,34 @@ import java.util.Optional;
 public class HorarioService {
 
     @Autowired
-    private HorarioRepository repository;
+    private HorarioRepository horarioRepository;
 
     public List<Horario> listarTodos() {
-        return repository.findAll();
+        return horarioRepository.findAll();
     }
 
-    public Horario criar(Horario horario) {
-        return repository.save(horario);
+    public List<Horario> listarPorDiaSemana(String dia) {
+        return horarioRepository.findByDiaSemana(DayOfWeek.valueOf(dia.toUpperCase()));
     }
 
-    public Optional<Horario> editar(Long id, Horario horarioAtualizado) {
-        return repository.findById(id).map(horario -> {
-            horario.setHora(horarioAtualizado.getHora());
-            return repository.save(horario);
-        });
+    public Horario criarOuAtualizar(Horario horario) {
+        return horarioRepository.save(horario);
     }
 
-    public boolean deletar(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return true;
+    public void bloquearTodosHorariosDoDia(String dia) {
+        DayOfWeek diaSemana = DayOfWeek.valueOf(dia.toUpperCase());
+        List<Horario> horarios = horarioRepository.findByDiaSemana(diaSemana);
+        for (Horario h : horarios) {
+            h.setBloqueado(true);
         }
-        return false;
+        horarioRepository.saveAll(horarios);
     }
 
-    public Optional<Horario> bloquearOuDesbloquear(Long id, boolean bloquear) {
-        return repository.findById(id).map(horario -> {
-            horario.setBloqueado(bloquear);
-            return repository.save(horario);
-        });
+    public void deletar(Long id) {
+        horarioRepository.deleteById(id);
+    }
+
+    public Optional<Horario> buscarPorId(Long id) {
+        return horarioRepository.findById(id);
     }
 }

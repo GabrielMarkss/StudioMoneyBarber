@@ -1,37 +1,31 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Horario } from '../models/horario.model';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Horario } from '../models/horario.model';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class HorarioService {
-    private baseUrl = 'http://localhost:8080/api/horarios';
+  private baseUrl = 'http://localhost:8080/api/horarios'; // ajuste conforme seu backend
 
-    constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-    listar(): Observable<Horario[]> {
-        return this.http.get<Horario[]>(this.baseUrl);
-    }
+  getPorDia(dia: string): Observable<Horario[]> {
+    return this.http.get<Horario[]>(`${this.baseUrl}/dia/${dia}`);
+  }
 
-    criar(horario: Horario): Observable<Horario> {
-        return this.http.post<Horario>(this.baseUrl, horario);
-    }
+  remover(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 
-    editar(id: number, horario: Horario): Observable<Horario> {
-        return this.http.put<Horario>(`${this.baseUrl}/${id}`, horario);
-    }
+  atualizar(id: number, dados: Partial<Horario>): Observable<Horario> {
+    return this.http.put<Horario>(`${this.baseUrl}/${id}`, dados);
+  }
 
-    deletar(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/${id}`);
-    }
-
-    bloquear(id: number): Observable<Horario> {
-        return this.http.put<Horario>(`${this.baseUrl}/${id}/bloquear`, {});
-    }
-
-    desbloquear(id: number): Observable<Horario> {
-        return this.http.put<Horario>(`${this.baseUrl}/${id}/desbloquear`, {});
-    }
+  bloquearDia(dia: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/bloquear-dia`, null, {
+      params: { dia },
+    });
+  }
 }

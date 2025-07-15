@@ -3,57 +3,44 @@ package com.stmoneybarber.backend.controller;
 import com.stmoneybarber.backend.model.Horario;
 import com.stmoneybarber.backend.service.HorarioService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/horarios")
-@CrossOrigin(origins = "*")
 public class HorarioController {
-
-    @Autowired
-    private HorarioService service;
 
     @Autowired
     private HorarioService horarioService;
 
     @GetMapping
-    public List<Horario> listar() {
+    public List<Horario> listarTodos() {
         return horarioService.listarTodos();
     }
 
-    @PostMapping
-    public ResponseEntity<Horario> criar(@RequestBody Horario horario) {
-        return ResponseEntity.ok(service.criar(horario));
+    @GetMapping("/dia/{dia}")
+    public List<Horario> listarPorDia(@PathVariable String dia) {
+        return horarioService.listarPorDiaSemana(dia);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody Horario horario) {
-        return service.editar(id, horario)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping
+    public Horario criarOuAtualizar(@RequestBody Horario horario) {
+        return horarioService.criarOuAtualizar(horario);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
-        return service.deletar(id)
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.notFound().build();
+    public void deletar(@PathVariable Long id) {
+        horarioService.deletar(id);
     }
 
-    @PutMapping("/{id}/bloquear")
-    public ResponseEntity<?> bloquear(@PathVariable Long id) {
-        return service.bloquearOuDesbloquear(id, true)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping("/bloquear-dia")
+    public void bloquearDia(@RequestParam String dia) {
+        horarioService.bloquearTodosHorariosDoDia(dia);
     }
 
-    @PutMapping("/{id}/desbloquear")
-    public ResponseEntity<?> desbloquear(@PathVariable Long id) {
-        return service.bloquearOuDesbloquear(id, false)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/id/{id}")
+    public Horario buscarPorId(@PathVariable Long id) {
+        return horarioService.buscarPorId(id).orElse(null);
     }
 }
