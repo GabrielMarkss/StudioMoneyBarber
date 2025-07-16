@@ -1,26 +1,15 @@
-<!-- ===== NAVBAR SUPERIOR ===== -->
-<nav
-  class="navbar"
-  style="
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-  "
->
+<!-- NAVBAR SUPERIOR -->
+<nav class="navbar" id="navbar">
   <div class="left" style="display: flex; align-items: center">
     <img
       src="assets/user-profile.png"
       alt="Perfil"
       routerLink="/dashteste"
       class="profile-img"
-      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer"
-    />
-    <div class="greeting" style="color: white">
-      <div style="font-size: 20px; font-weight: bold">
-        Olá, {{ usuarioService.nomeUsuario || "..." }}
-      </div>
-      <small style="font-size: 14px">{{ dataHoje }}</small>
+      style="width: 85px; height: 85px; border-radius: 50%; cursor: pointer" />
+    <div class="greeting">
+      <div>Olá, {{ usuarioService.nomeUsuario || "..." }}</div>
+      <small>{{ dataHoje }}</small>
     </div>
   </div>
 
@@ -32,30 +21,27 @@
       gap: 0.5rem;
       padding-bottom: 0.25px;
       margin-top: 20px;
-    "
-  >
-    <!-- ===== NOTIFICAÇÕES ===== -->
+    ">
+    <!-- Ícone Notificação com pop-up -->
     <div
       class="notificacao-wrapper"
       (mouseenter)="abrirNotificacao()"
       (mouseleave)="fecharNotificacao()"
-      style="margin-right: 0.625rem"
-    >
+      style="margin-right: 0.625rem">
       <img
         src="assets/notificacao.png"
         alt="Notificações"
         class="notificacao"
-        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)"
-      />
+        style="width: 2.25rem; cursor: pointer; transform: translateY(2px)" />
 
+      <!-- Pop-up dinâmico -->
       <div class="notificacao-popup" *ngIf="mostrarNotificacoes">
         <div *ngFor="let n of notificacoes" class="notificacao-card">
           <div class="notificacao-imagem">
             <img
               [src]="n.imagemUrl"
               alt="Imagem"
-              style="width: 100%; height: 100%"
-            />
+              style="width: 100%; height: 100%" />
           </div>
           <div class="notificacao-conteudo">
             <strong>{{ n.titulo }}</strong>
@@ -68,51 +54,33 @@
               align-items: center;
               gap: 0.3rem;
               margin-left: auto;
-            "
-          >
+            ">
             <span
-              class="editar-notificacao"
+              class="icone-acao editar notificacao"
               title="Editar notificação"
-              style="cursor: pointer; font-size: 18px"
-              (click)="editarNotificacao(n)"
-              >✎</span
-            >
+              style="font-size: 17px"
+              (click)="editarNotificacao(n)">✎</span>
+
             <span
-              class="apagar-notificacao"
+              class="icone-acao apagar notificacao"
               title="Remover notificação"
-              style="cursor: pointer; font-size: 18px"
-              (click)="confirmarRemocao(n)"
-              >✕</span
-            >
+              style="font-weight: bold"
+              (click)="confirmarRemocao(n)">✕</span>
           </div>
         </div>
 
         <div
           class="nova-notificacao"
           *ngIf="usuarioService.usuarioEhAdmin()"
-          (click)="abrirFormularioNotificacao()"
-        >
+          (click)="abrirFormularioNotificacao()">
           + Nova notificação
         </div>
       </div>
 
-      <!-- ===== FORMULÁRIO DE NOTIFICAÇÃO ===== -->
+      <!-- Formulário de criação (modal) -->
       <div
         class="formulario-modal"
-        *ngIf="mostrarFormulario"
-        style="
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 20px;
-          border-radius: 12px;
-          z-index: 999;
-          width: 400px;
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        "
-      >
+        *ngIf="mostrarFormulario && usuarioService.usuarioEhAdmin()">
         <h3 style="color: black; margin-top: 0">Nova Notificação</h3>
 
         <input
@@ -120,21 +88,18 @@
           [(ngModel)]="nova.titulo"
           class="form-control"
           placeholder="Título da notificação"
-          style="width: 100%"
-        />
+          style="width: 100%" />
         <textarea
           [(ngModel)]="nova.descricao"
           class="form-control"
           placeholder="Descrição da notificação"
           style="width: 100%; resize: none"
-          rows="3"
-        ></textarea>
+          rows="3"></textarea>
 
         <input
           style="color: black"
           type="file"
-          (change)="onFileChange($event)"
-        />
+          (change)="onFileChange($event)" />
 
         <div class="botoes-container">
           <button class="cancelar" (click)="cancelarFormulario()">
@@ -145,20 +110,18 @@
             (click)="salvarNotificacao()"
             [disabled]="
               !nova.titulo.trim() || !nova.descricao.trim() || !nova.imagemUrl
-            "
-          >
+            ">
             Salvar
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ===== MENU DROPDOWN ===== -->
+    <!-- Botão de menu ☰ -->
     <div
       class="dropdown"
       (mouseenter)="abrirMenu()"
-      (mouseleave)="fecharMenu()"
-    >
+      (mouseleave)="fecharMenu()">
       <div class="dropdown-toggle">☰</div>
       <ul class="dropdown-menu" *ngIf="menuAberto">
         <li><a routerLink="/menu">Perfil</a></li>
@@ -182,13 +145,11 @@
             type="checkbox"
             [value]="servico.id"
             (change)="toggleServico(servico.id!, $event)"
-            [checked]="servicosSelecionados.includes(servico.id!)"
-          />
+            [checked]="servicosSelecionados.includes(servico.id!)" />
           {{ servico.nome }}
         </label>
-        <span class="preco-servico"
-          >R$ {{ servico.preco | number : "1.2-2" }}</span
-        >
+        <span class="preco-servico">R$ {{ servico.preco | number : "1.2-2"
+          }}</span>
       </div>
     </div>
   </div>
@@ -201,215 +162,239 @@
 
       <!-- AÇÕES ADMIN -->
       <div *ngIf="usuarioService.usuarioEhAdmin()" class="acoes-admin">
-        <button title="Criar horário" (click)="abrirFormularioCriarHorario()">
-          🕒➕
+        <button
+          title="Criar horário"
+          (click)="abrirFormularioCriarHorario()"
+          class="btn-acao-admin">
+          Criar horário
         </button>
-        <button title="Bloquear dia" (click)="bloquearDiaSelecionado()">
-          🚫📅
+        <button
+          title="Bloquear dia"
+          (click)="toggleBloquearDiaSelecionado()"
+          class="btn-acao-admin">
+          Bloquear dia
         </button>
       </div>
 
       <!-- SELEÇÃO DE DIA -->
       <div class="dias-wrapper">
-        <button
-          *ngFor="let d of diasSemana"
+        <button *ngFor="let d of diasSemana"
           [class.ativo]="diaSelecionado === d.value"
-          (click)="selecionarDia(d.value)"
-        >
+          (click)="selecionarDia(d.value)">
           {{ d.label }}
         </button>
       </div>
-
       <!-- PERÍODO MANHÃ -->
       <div class="periodo">
-        <h4>Manhã</h4>
+        <h4>
+          Manhã
+          <button class="delete-mode-btn" (click)="modoRemocao = !modoRemocao"
+            title="Ativar modo de remoção">
+            🗑️
+          </button>
+        </h4>
         <div class="horarios">
           <div
             *ngFor="let h of horariosManha"
-            [class.bloqueado]="h.bloqueado"
+            [class.bloqueado]="h.bloqueado || horarioJaPassou(h.horario)"
+            [class.remocao-ativa]="modoRemocao"
             class="horario-box"
-          >
-            {{ h.horario }}
+            (click)="modoRemocao ? confirmarRemoverHorario(h) : null"
+            (mouseenter)="hoverHorarioId = h.id"
+            (mouseleave)="hoverHorarioId = null">
 
-            <span *ngIf="usuarioService.usuarioEhAdmin()" class="acoes-horario">
-              <button
-                title="Editar horário"
-                (click)="editarHorario(h)"
-                class="btn-icon"
-              >
-                ✎
-              </button>
-              <button
-                title="Remover horário"
-                (click)="removerHorario(h)"
-                class="btn-icon"
-              >
-                🗑️
-              </button>
-              <button
-                title="Bloquear horário"
-                (click)="bloquearHorario(h)"
-                class="btn-icon"
-              >
-                🚫
-              </button>
-            </span>
+            {{ h.horario | horarioFormat }}
+
+            <div
+              class="acoes-mini"
+              *ngIf="usuarioService.usuarioEhAdmin() && !modoRemocao && !horarioJaPassou(h.horario)"
+              [style.display]="hoverHorarioId === (h.id ?? null) ? 'block' : 'none'">
+              <button (click)="abrirAcaoHorario(h)">⋮</button>
+            </div>
           </div>
+
         </div>
       </div>
 
       <!-- PERÍODO TARDE -->
       <div class="periodo">
-        <h4>Tarde</h4>
+        <h4>
+          Tarde
+          <button class="delete-mode-btn" (click)="modoRemocao = !modoRemocao"
+            title="Ativar modo de remoção">
+            🗑️
+          </button>
+        </h4>
         <div class="horarios">
           <div
             *ngFor="let h of horariosTarde"
-            [class.bloqueado]="h.bloqueado"
+            [class.bloqueado]="h.bloqueado || horarioJaPassou(h.horario)"
+            [class.remocao-ativa]="modoRemocao"
             class="horario-box"
-          >
-            {{ h.horario }}
-            <span *ngIf="usuarioService.usuarioEhAdmin()" class="acoes-horario">
-              <button
-                title="Editar horário"
-                (click)="editarHorario(h)"
-                class="btn-icon"
-              >
-                ✎
-              </button>
-              <button
-                title="Remover horário"
-                (click)="removerHorario(h)"
-                class="btn-icon"
-              >
-                🗑️
-              </button>
-              <button
-                title="Bloquear horário"
-                (click)="bloquearHorario(h)"
-                class="btn-icon"
-              >
-                🚫
-              </button>
-            </span>
+            (click)="modoRemocao ? confirmarRemoverHorario(h) : null"
+            (mouseenter)="hoverHorarioId = h.id"
+            (mouseleave)="hoverHorarioId = null">
+            {{ h.horario | horarioFormat }}
+
+            <div
+              class="acoes-mini"
+              *ngIf="usuarioService.usuarioEhAdmin() && !modoRemocao && !horarioJaPassou(h.horario)"
+              [style.display]="hoverHorarioId === (h.id ?? null) ? 'block' : 'none'">
+              <button (click)="abrirAcaoHorario(h)">⋮</button>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- PERÍODO NOITE -->
       <div class="periodo">
-        <h4>Noite</h4>
+        <h4>
+          Noite
+          <button class="delete-mode-btn" (click)="modoRemocao = !modoRemocao"
+            title="Ativar modo de remoção">
+            🗑️
+          </button>
+        </h4>
         <div class="horarios">
           <div
             *ngFor="let h of horariosNoite"
-            [class.bloqueado]="h.bloqueado"
+            [class.bloqueado]="h.bloqueado || horarioJaPassou(h.horario)"
+            [class.remocao-ativa]="modoRemocao"
             class="horario-box"
-          >
-            {{ h.horario }}
-            <span *ngIf="usuarioService.usuarioEhAdmin()" class="acoes-horario">
-              <button
-                title="Editar horário"
-                (click)="editarHorario(h)"
-                class="btn-icon"
-              >
-                ✎
-              </button>
-              <button
-                title="Remover horário"
-                (click)="removerHorario(h)"
-                class="btn-icon"
-              >
-                🗑️
-              </button>
-              <button
-                title="Bloquear horário"
-                (click)="bloquearHorario(h)"
-                class="btn-icon"
-              >
-                🚫
-              </button>
-            </span>
+            (click)="modoRemocao ? confirmarRemoverHorario(h) : null"
+            (mouseenter)="hoverHorarioId = h.id"
+            (mouseleave)="hoverHorarioId = null">
+            {{ h.horario | horarioFormat }}
+
+            <div
+              class="acoes-mini"
+              *ngIf="usuarioService.usuarioEhAdmin() && !modoRemocao && !horarioJaPassou(h.horario)"
+              [style.display]="hoverHorarioId === (h.id ?? null) ? 'block' : 'none'">
+              <button (click)="abrirAcaoHorario(h)">⋮</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ===== RESUMO DO AGENDAMENTO ===== -->
-    <div class="resumo-agendamento">
-      <div class="informacoes-box">
-        <h3>Resumo do Agendamento</h3>
+      <!-- ===== RESUMO DO AGENDAMENTO ===== -->
+      <div class="resumo-agendamento">
+        <div class="informacoes-box">
+          <h3>Resumo do Agendamento</h3>
 
-        <div class="resumo-item">
-          <strong>Barbeiro Selecionado:</strong>
-          <span>{{ barbeiroSelecionado?.nome || "Nenhum selecionado" }}</span>
+          <div class="resumo-item">
+            <strong>Barbeiro Selecionado:</strong>
+            <span>{{ barbeiroSelecionado?.nome || "Nenhum selecionado" }}</span>
+          </div>
+
+          <div class="resumo-item">
+            <label for="cupom"><strong>Aplicar Cupom:</strong></label>
+            <select
+              id="cupom"
+              [(ngModel)]="cupomSelecionadoId"
+              (change)="onCupomChange()">
+              <option [value]="''">Nenhum</option>
+              <option *ngFor="let c of cuponsDisponiveis" [value]="c.id">
+                {{ c.nome }} - {{ c.desconto }}%
+              </option>
+            </select>
+          </div>
+
+          <div class="resumo-item">
+            <strong>Valor Total:</strong>
+            R$ {{ valorTotal | number : "1.2-2" }}
+          </div>
+
+          <div class="resumo-item">
+            <strong>Desconto:</strong>
+            <span *ngIf="descontoAplicado > 0">- R$ {{ descontoAplicado | number
+              :
+              "1.2-2" }}</span>
+            <span *ngIf="descontoAplicado === 0">R$ 0.00</span>
+          </div>
+
+          <div class="resumo-item">
+            <strong>Valor Final:</strong>
+            <span style="color: #f46d25; font-weight: bold">R$ {{ valorFinal |
+              number : "1.2-2" }}</span>
+          </div>
+
+          <button class="confirmar-btn" (click)="confirmarAgendamento()">
+            Confirmar Agendamento
+          </button>
         </div>
-
-        <div class="resumo-item">
-          <label for="cupom"><strong>Aplicar Cupom:</strong></label>
-          <select
-            id="cupom"
-            [(ngModel)]="cupomSelecionadoId"
-            (change)="onCupomChange()"
-          >
-            <option [value]="''">Nenhum</option>
-            <option *ngFor="let c of cuponsDisponiveis" [value]="c.id">
-              {{ c.nome }} - {{ c.desconto }}%
-            </option>
-          </select>
-        </div>
-
-        <div class="resumo-item">
-          <strong>Valor Total:</strong>
-          R$ {{ valorTotal | number : "1.2-2" }}
-        </div>
-
-        <div class="resumo-item">
-          <strong>Desconto:</strong>
-          <span *ngIf="descontoAplicado > 0"
-            >- R$ {{ descontoAplicado | number : "1.2-2" }}</span
-          >
-          <span *ngIf="descontoAplicado === 0">R$ 0.00</span>
-        </div>
-
-        <div class="resumo-item">
-          <strong>Valor Final:</strong>
-          <span style="color: #f46d25; font-weight: bold"
-            >R$ {{ valorFinal | number : "1.2-2" }}</span
-          >
-        </div>
-
-        <button class="confirmar-btn" (click)="confirmarAgendamento()">
-          Confirmar Agendamento
-        </button>
       </div>
     </div>
   </div>
-</div>
+  <!-- ===== FORMULÁRIO DE ADICIONAR/EDITAR HORÁRIO ===== -->
+  <div
+    *ngIf="mostrarFormularioHorario"
+    class="formulario-modal"
+    style="
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      z-index: 999;
+      width: 320px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    ">
+    <h3 style="margin-top: 0; color: black">
+      {{ horarioParaEditar ? 'Editar Horário' : 'Novo Horário' }}
+    </h3>
 
-<!-- ===== BARRA INFERIOR MOBILE ===== -->
-<nav class="bottom-nav">
-  <a routerLink="/dashteste" class="nav-item">
-    <img src="assets/inicio.png" alt="Início" width="38" height="32" />
-    <span>Início</span>
-  </a>
-  <a routerLink="/galeria" class="nav-item">
-    <img src="assets/galeria-ativa.png" alt="Galeria" width="34" height="33" />
-    <span style="color: #f46d25; font-weight: bold">Galeria</span>
-  </a>
-  <a routerLink="/agendamentos" class="nav-item">
-    <img
-      src="assets/agendamento.png"
-      alt="Agendamentos"
-      width="34"
-      height="34"
-    />
-    <span>Agendamentos</span>
-  </a>
-  <a routerLink="/produtos" class="nav-item">
-    <img src="assets/produto.png" alt="Produtos" width="30" height="30" />
-    <span>Produtos</span>
-  </a>
-  <a routerLink="/menu" class="nav-item">
-    <img src="assets/user-profile.png" alt="Menu" width="40" height="40" />
-    <span>Menu</span>
-  </a>
-</nav>
+    <label for="horarioInput" style="color: black">Horário:</label>
+    <input
+      id="horarioInput"
+      type="time"
+      [(ngModel)]="horarioParaEditar!.horario"
+      style="width: 100%; margin-bottom: 1rem" />
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px">
+      <button (click)="cancelarEdicaoHorario()">Cancelar</button>
+      <button
+        (click)="salvarHorario()"
+        [disabled]="!horarioParaEditar?.horario">
+        Salvar
+      </button>
+    </div>
+  </div>
+
+  <!-- BARRA INFERIOR MOBILE -->
+  <div class="bottom-nav">
+    <a routerLink="/dashboard" class="nav-item">
+      <img
+        src="assets/home-ativa.png"
+        alt="Início"
+        width="38px"
+        height="32px" />
+      <span style="color: #f46d25; font-weight: bold">Início</span>
+    </a>
+    <a routerLink="/galeria" class="nav-item">
+      <img src="assets/galeria.png" alt="Galeria" width="34px" height="33px" />
+      <span>Galeria</span>
+    </a>
+    <a routerLink="/agendamentos" class="nav-item">
+      <img
+        src="assets/agendamento.png"
+        alt="Agendamentos"
+        width="34px"
+        height="34px" />
+      <span>Agendamentos</span>
+    </a>
+    <a routerLink="/produtos" class="nav-item">
+      <img src="assets/produto.png" alt="Produtos" width="30px" height="30px" />
+      <span>Produtos</span>
+    </a>
+    <a routerLink="/menu" class="nav-item">
+      <img
+        src="assets/user-profile.png"
+        alt="Menu"
+        width="40px"
+        height="40px" />
+      <span>Menu</span>
+    </a>
+  </div>
+</div>

@@ -11,13 +11,14 @@ import { Horario } from '../models/horario.model';
 import { FormsModule, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { HorarioFormatPipe } from '../pipe/horario-format.pipe';
 
 @Component({
   selector: 'app-agendamento-felipe',
   templateUrl: './agendamento-felipe.component.html',
   styleUrls: ['./agendamento-felipe.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, HorarioFormatPipe, ReactiveFormsModule],
 })
 export class AgendamentoFelipeComponent implements OnInit {
   dataHoje: string = '';
@@ -67,6 +68,11 @@ export class AgendamentoFelipeComponent implements OnInit {
   horarios: Horario[] = [];
   mostrarFormularioHorario = false;
   horarioParaEditar: Horario | null = null;
+  mostrarModalAcao = false;
+  horarioSelecionado: Horario | null = null;
+  modoRemocao: boolean = false;
+  hoverHorarioId: number | null | undefined = null;
+
 
   constructor(
     public usuarioService: UsuarioService,
@@ -74,7 +80,7 @@ export class AgendamentoFelipeComponent implements OnInit {
     private servicoService: ServicoService,
     private horarioService: HorarioService,
     private fb: FormBuilder
-  ) {}
+  ) { }
 
   // ===== CICLO DE VIDA =====
   ngOnInit(): void {
@@ -102,9 +108,8 @@ export class AgendamentoFelipeComponent implements OnInit {
       'nov',
       'dez',
     ];
-    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${
-      meses[data.getMonth()]
-    } ${data.getFullYear()}`;
+    this.dataHoje = `${dias[data.getDay()]}, ${data.getDate()} ${meses[data.getMonth()]
+      } ${data.getFullYear()}`;
 
     if (this.usuarioService.isLoggedIn()) {
       this.usuarioService.getUsuarioLogado().subscribe({
@@ -129,6 +134,7 @@ export class AgendamentoFelipeComponent implements OnInit {
       this.menuAberto = false;
     }, 150);
   }
+
 
   // ===== NOTIFICAÇÕES =====
   abrirNotificacao() {
@@ -273,7 +279,13 @@ export class AgendamentoFelipeComponent implements OnInit {
   }
 
   abrirFormularioCriarHorario() {
-    this.horarioParaEditar = null;
+    this.horarioParaEditar = {
+      id: undefined,
+      diaSemana: this.diaSelecionado,
+      horario: '',
+      disponivel: true,
+      bloqueado: false,
+    };
     this.mostrarFormularioHorario = true;
   }
 
@@ -282,14 +294,26 @@ export class AgendamentoFelipeComponent implements OnInit {
     this.mostrarFormularioHorario = true;
   }
 
-  confirmarRemoverHorario(horario: Horario) {
-    const confirmar = confirm(`Deseja remover o horário ${horario.horario}?`);
-    if (confirmar) {
-      this.horarioService.remover(horario.id!).subscribe(() => {
-        this.carregarHorarios();
-      });
-    }
+  cancelarEdicaoHorario() {
+    this.horarioParaEditar = null;
+    this.mostrarFormularioHorario = false;
   }
+
+  salvarHorario() {
+    if (!this.horarioParaEditar?.horario) return;
+
+    const horario = {
+      ...this.horarioParaEditar,
+      diaSemana: this.diaSelecionado,
+    };
+
+    this.horarioService.criarOuAtualizar(horario).subscribe(() => {
+      this.carregarHorarios();
+      this.cancelarEdicaoHorario();
+      console.log('Enviando horário:', horario);
+    });
+  }
+
 
   toggleBloquearHorario(horario: Horario) {
     const acao = horario.bloqueado ? 'desbloquear' : 'bloquear';
@@ -303,35 +327,34 @@ export class AgendamentoFelipeComponent implements OnInit {
       });
   }
 
-  bloquearDiaSelecionado(): void {
-    const confirmar = confirm(
-      `Deseja bloquear o dia ${this.diaSelecionado} inteiro?`
-    );
+  toggleBloquearDiaSelecionado(): void {
+    const algumBloqueado = this.horarios.some(h => h.bloqueado);
+    const acao = algumBloqueado ? 'desbloquear' : 'bloquear';
+
+    const confirmar = confirm(`Deseja ${acao} todos os horários do dia ${this.diaSelecionado}?`);
     if (!confirmar) return;
 
-    this.horarioService.bloquearDia(this.diaSelecionado).subscribe(
-      () => {
-        alert(`Dia ${this.diaSelecionado} bloqueado com sucesso.`);
-        this.carregarHorarios();
-      },
-      (error) => {
-        alert('Erro ao bloquear o dia.');
-      }
-    );
+    this.horarioService.bloquearDia(this.diaSelecionado, !algumBloqueado).subscribe(() => {
+      alert(`Dia ${this.diaSelecionado} ${acao}ado com sucesso.`);
+      this.carregarHorarios();
+    });
   }
 
-  removerHorario(horario: Horario): void {
+  confirmarRemoverHorario(horario: Horario) {
     const confirmar = confirm(`Deseja remover o horário ${horario.horario}?`);
-    if (!confirmar) return;
-
-    this.horarioService.remover(horario.id!).subscribe(
-      () => {
+    if (confirmar) {
+      this.horarioService.remover(horario.id!).subscribe(() => {
         this.carregarHorarios();
-      },
-      (error) => {
-        alert('Erro ao remover o horário.');
-      }
-    );
+      });
+    }
+  }
+  removerHorario(horario: Horario) {
+    const confirmar = confirm(`Deseja remover o horário ${horario.horario}?`);
+    if (confirmar) {
+      this.horarioService.remover(horario.id!).subscribe(() => {
+        this.carregarHorarios();
+      });
+    }
   }
 
   bloquearHorario(horario: Horario): void {
@@ -341,15 +364,62 @@ export class AgendamentoFelipeComponent implements OnInit {
 
     this.horarioService
       .atualizar(horario.id!, { ...horario, bloqueado: !horario.bloqueado })
-      .subscribe(
-        () => {
-          this.carregarHorarios();
-        },
-        (error) => {
-          alert(`Erro ao ${acao} o horário.`);
-        }
-      );
+      .subscribe(() => {
+        this.carregarHorarios();
+        this.fecharModalAcao();
+      });
   }
+
+  isHorarioPassado(horario: string): boolean {
+    const agora = new Date();
+    const [hh, mm] = horario.split(':').map(Number);
+    const horarioComparar = new Date();
+    horarioComparar.setHours(hh, mm, 0, 0);
+    return horarioComparar < agora;
+  }
+
+  abrirAcaoHorario(horario: Horario): void {
+    const acao = confirm(`Deseja EDITAR (OK) ou BLOQUEAR/DESBLOQUEAR (Cancelar) o horário ${horario.horario}?`);
+    if (acao) {
+      this.editarHorario(horario);
+    } else {
+      this.bloquearHorario(horario);
+    }
+  }
+
+  horarioJaPassou(hora: string): boolean {
+    const agora = new Date();
+    const [hh, mm] = hora.split(':').map(Number);
+    const horarioData = new Date();
+    horarioData.setHours(hh, mm, 0, 0);
+
+    return horarioData.getTime() < agora.getTime();
+  }
+
+  formatarHorario(horario: string): string {
+    return horario.slice(0, 5); // 'HH:mm'
+  }
+
+  horarioEhPassado(h: Horario): boolean {
+    const agora = new Date();
+    const diaAtual = agora.getDay(); // 0 (domingo) até 6 (sábado)
+
+    const diaHorario = this.diasSemana.findIndex(d => d.value === h.diaSemana);
+    if (diaHorario !== diaAtual) return false;
+
+    const [hh, mm] = h.horario.split(':').map(Number);
+    const horarioData = new Date();
+    horarioData.setHours(hh, mm, 0, 0);
+
+    return horarioData < agora;
+  }
+
+
+  fecharModalAcao(): void {
+    this.horarioSelecionado = null;
+    this.mostrarModalAcao = false;
+  }
+
 
   // ===== GETTERS FILTRADOS PARA HTML =====
   get horariosManha(): Horario[] {

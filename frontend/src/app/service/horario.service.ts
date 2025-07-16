@@ -9,7 +9,7 @@ import { Horario } from '../models/horario.model';
 export class HorarioService {
   private baseUrl = 'http://localhost:8080/api/horarios'; // ajuste conforme seu backend
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getPorDia(dia: string): Observable<Horario[]> {
     return this.http.get<Horario[]>(`${this.baseUrl}/dia/${dia}`);
@@ -23,9 +23,17 @@ export class HorarioService {
     return this.http.put<Horario>(`${this.baseUrl}/${id}`, dados);
   }
 
-  bloquearDia(dia: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/bloquear-dia`, null, {
-      params: { dia },
-    });
+  criarOuAtualizar(horario: Horario): Observable<Horario> {
+    if (horario.id) {
+      return this.atualizar(horario.id, horario);
+    } else {
+      return this.http.post<Horario>(this.baseUrl, horario);
+    }
   }
+
+  bloquearDia(dia: string, bloquear: boolean) {
+    return this.http.post(`${this.baseUrl}/bloquear-dia`, { diaSemana: dia, bloquear });
+  }
+
+
 }

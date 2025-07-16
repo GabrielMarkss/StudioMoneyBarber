@@ -1,8 +1,11 @@
 package com.stmoneybarber.backend.controller;
 
+import com.stmoneybarber.backend.dto.DiaBloqueioRequest;
+import com.stmoneybarber.backend.dto.HorarioDTO;
 import com.stmoneybarber.backend.model.Horario;
 import com.stmoneybarber.backend.service.HorarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +28,8 @@ public class HorarioController {
     }
 
     @PostMapping
-    public Horario criarOuAtualizar(@RequestBody Horario horario) {
-        return horarioService.criarOuAtualizar(horario);
+    public Horario criarOuAtualizar(@RequestBody HorarioDTO dto) {
+        return horarioService.salvarDto(dto);
     }
 
     @DeleteMapping("/{id}")
@@ -35,8 +38,13 @@ public class HorarioController {
     }
 
     @PostMapping("/bloquear-dia")
-    public void bloquearDia(@RequestParam String dia) {
-        horarioService.bloquearTodosHorariosDoDia(dia);
+    public ResponseEntity<?> bloquearOuDesbloquearDia(@RequestBody DiaBloqueioRequest request) {
+        if (request.isBloquear()) {
+            horarioService.bloquearTodosHorariosDoDia(request.getDiaSemana());
+        } else {
+            horarioService.desbloquearTodosHorariosDoDia(request.getDiaSemana());
+        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/id/{id}")
